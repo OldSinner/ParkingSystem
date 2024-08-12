@@ -172,6 +172,7 @@ ENV/
 env.bak/
 venv.bak/
 TestData/
+*/Models/yolov8n.pt
 # Spyder project settings
 .spyderproject
 .spyproject
