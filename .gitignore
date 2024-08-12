@@ -171,7 +171,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+TestData/
 # Spyder project settings
 .spyderproject
 .spyproject
