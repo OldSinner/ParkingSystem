@@ -1,11 +1,11 @@
 from ultralytics import YOLO
 from const import *
-from Detector.Sort.sort import *
+from Sort.sort import *
 import cv2
 class Detector:
     def __init__(self) -> None:
         self.car_model = YOLO(CAR_DETECTOR_MODEL)
-        self.license_playe = YOLO(LICENCE_PLATE_MODEL)
+        self.license_plate = YOLO(LICENCE_PLATE_MODEL)
         self.cap = cv2.VideoCapture(VIDEO_PATH)
         self.mot_tracker = Sort()
         pass
@@ -19,7 +19,10 @@ class Detector:
             ret, frame = self.prepare_frame()
             # Detection
             cars = self.detect_cars(frame)
+            tracks = self.track(cars)
+            print(tracks)
             #  Display 
+            self.display_bounds(frame,tracks)
             key = self.display(frame)
             if key == 27:
                 break
@@ -45,8 +48,11 @@ class Detector:
                 detections_.append([x1, y1, x2, y2, score])
         return detections_
     
-    def track(self,list) -> np.NDArray:
+    def track(self,list) -> np.ndarray:
        return self.mot_tracker.update(np.asarray(list))
     
     def find_plates(self,frame) -> None:
-        pass
+        plates = self.license_plate(frame)[0]
+        for plate in plates.boxes.data.tolist():
+            x1, y1, x2, y2, score, class_id = plate
+            
