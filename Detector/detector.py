@@ -10,14 +10,12 @@ class Detector:
         self.license_plate = YOLO(LICENCE_PLATE_MODEL)
         self.cap = cv2.VideoCapture(VIDEO_PATH)
         self.mot_tracker = Sort()
-        self.results = {}
         self.frame_nr = -1
         self.reader = easyocr.Reader(['en'], gpu=True)
         pass
 
     def detect_from_img(self) -> None:
         self.frame_nr += 1
-        self.results[self.frame_nr] = {}
         ret, frame = self.prepare_frame_img()
         cars = self.detect_cars(frame)
         self.tracked_car = self.track(cars)
@@ -30,7 +28,6 @@ class Detector:
         while ret and self.frame_nr < 10:
             # Some preparing
             self.frame_nr += 1
-            self.results[self.frame_nr] = {}
             ret, frame = self.prepare_frame()
             # Detection
             cars = self.detect_cars(frame)
@@ -42,7 +39,6 @@ class Detector:
                 break
             if ret:
                 pass
-        write_csv(self.results,'./test.csv')
     def prepare_frame_img(self):
         frame = cv2.imread("./TestData/test3.jpg")
         return True,frame
@@ -79,12 +75,6 @@ class Detector:
             _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
 
             lp, lps = self.read_lp(lp_gray_treshhold)
-            if lp is not None:
-                    self.results[self.frame_nr][cid] = {'car': {'bbox': [cx1, cy1, cx2, cy2]},
-                                                  'license_plate': {'bbox': [x1, y1, x2, y2],
-                                                                    'text': lp,
-                                                                    'bbox_score': score,
-                                                                    'text_score': lps}}
     
     def define_car(self, plate) -> None:
         # self.tracked_car
@@ -102,12 +92,13 @@ class Detector:
             return self.tracked_car[car_indx]
         return -1,-1,-1,-1,-1
     
-    def read_lp(self, frame) -> tuple[str, int]:
+    def read_lp(self, frame):
         detections = self.reader.readtext(frame)
+        detected_words = []
         cv2.imshow("lp",frame)
         for detection in detections:
             bbox, text, score = detection
-            print(text)
-        return None, None
+            detected_words.append(text)
+        return detected_words
     
     
