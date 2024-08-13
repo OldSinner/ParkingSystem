@@ -1,4 +1,4 @@
 from detector import *
 
 detector = Detector()
-detector.detect()
+detector.detect_from_img()

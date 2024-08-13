@@ -3,6 +3,7 @@ from const import *
 from Sort.sort import *
 from help_dev import write_csv
 import cv2
+import easyocr
 class Detector:
     def __init__(self) -> None:
         self.car_model = YOLO(CAR_DETECTOR_MODEL)
@@ -11,10 +12,21 @@ class Detector:
         self.mot_tracker = Sort()
         self.results = {}
         self.frame_nr = -1
+        self.reader = easyocr.Reader(['en'])
         pass
+
+    def detect_from_img(self) -> None:
+        self.frame_nr += 1
+        self.results[self.frame_nr] = {}
+        ret, frame = self.prepare_frame_img()
+        cars = self.detect_cars(frame)
+        self.tracked_car = self.track(cars)
+        self.find_plates(frame)
+        key = self.display(frame)
+        write_csv(self.results,'./test.csv')
+
     def detect(self) -> None:
         ret = True
-        
 
         while ret and self.frame_nr < 10:
             # Some preparing
@@ -42,7 +54,7 @@ class Detector:
 
     def display(self, frame):
         cv2.imshow("Frame",frame)
-        key = cv2.waitKey(10)
+        key = cv2.waitKey(0)
         return key
     
     def detect_cars(self, frame) -> list:
@@ -60,7 +72,7 @@ class Detector:
     def find_plates(self,frame) -> None:
         plates = self.license_plate(frame)[0]
         for plate in plates.boxes.data.tolist():
-            x1, y1, x2, y2, score, class_id = plate
+            x1, y1, x2, y2, score, _ = plate
             cx1, cy1, cx2, cy2, cid = self.define_car(plate)
             # process lp
             lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
@@ -92,6 +104,11 @@ class Detector:
         return -1,-1,-1,-1,-1
     
     def read_lp(self, frame) -> tuple[str, int]:
-        return "0", 0
+        detections = self.reader.readtext(frame)
+        for detection in detections:
+            bbox, text, score = detection
+            text = text.upper().replace(' ','')
+            return text, score
+        return None, None
     
     
