@@ -12,7 +12,7 @@ class Detector:
         self.mot_tracker = Sort()
         self.results = {}
         self.frame_nr = -1
-        self.reader = easyocr.Reader(['en'])
+        self.reader = easyocr.Reader(['en'], gpu=True)
         pass
 
     def detect_from_img(self) -> None:
@@ -23,7 +23,6 @@ class Detector:
         self.tracked_car = self.track(cars)
         self.find_plates(frame)
         key = self.display(frame)
-        write_csv(self.results,'./test.csv')
 
     def detect(self) -> None:
         ret = True
@@ -45,7 +44,7 @@ class Detector:
                 pass
         write_csv(self.results,'./test.csv')
     def prepare_frame_img(self):
-        frame = cv2.imread("./TestData/carphoto_1.png")
+        frame = cv2.imread("./TestData/test3.jpg")
         return True,frame
     def prepare_frame(self):
         ret, frame = self.cap.read()
@@ -105,10 +104,10 @@ class Detector:
     
     def read_lp(self, frame) -> tuple[str, int]:
         detections = self.reader.readtext(frame)
+        cv2.imshow("lp",frame)
         for detection in detections:
             bbox, text, score = detection
-            text = text.upper().replace(' ','')
-            return text, score
+            print(text)
         return None, None
     
     
