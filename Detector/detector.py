@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 from const import *
 from Sort.sort import *
+from help_dev import write_csv
 import cv2
 class Detector:
     def __init__(self) -> None:
@@ -8,25 +9,29 @@ class Detector:
         self.license_plate = YOLO(LICENCE_PLATE_MODEL)
         self.cap = cv2.VideoCapture(VIDEO_PATH)
         self.mot_tracker = Sort()
+        self.results = {}
+        self.frame_nr = -1
         pass
     def detect(self) -> None:
         ret = True
-        frame_nr = -1
+        
 
-        # while ret :
+        while ret and self.frame_nr < 10:
             # Some preparing
-        frame_nr += 1
-        ret, frame = self.prepare_frame()
+            self.frame_nr += 1
+            self.results[self.frame_nr] = {}
+            ret, frame = self.prepare_frame()
             # Detection
-        cars = self.detect_cars(frame)
-        self.tracked_car = self.track(cars)
-        self.find_plates(frame)
+            cars = self.detect_cars(frame)
+            self.tracked_car = self.track(cars)
+            self.find_plates(frame)
             #  Display 
-        key = self.display(frame)
-        # if key == 27:
-        #     break
-        # if ret:
-        #     pass
+            key = self.display(frame)
+            if key == 27:
+                break
+            if ret:
+                pass
+        write_csv(self.results,'./test.csv')
     def prepare_frame_img(self):
         frame = cv2.imread("./TestData/carphoto_1.png")
         return True,frame
@@ -37,7 +42,7 @@ class Detector:
 
     def display(self, frame):
         cv2.imshow("Frame",frame)
-        key = cv2.waitKey(0)
+        key = cv2.waitKey(10)
         return key
     
     def detect_cars(self, frame) -> list:
@@ -62,12 +67,31 @@ class Detector:
             lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
             _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
 
-            cv2.imshow("LP",lp_crop)
-            cv2.imshow("Gray", lp_gray_cop)
-            cv2.imshow("Tesh", lp_gray_treshhold)
-
-
+            lp, lps = self.read_lp(lp_gray_treshhold)
+            if lp is not None:
+                    self.results[self.frame_nr][cid] = {'car': {'bbox': [cx1, cy1, cx2, cy2]},
+                                                  'license_plate': {'bbox': [x1, y1, x2, y2],
+                                                                    'text': lp,
+                                                                    'bbox_score': score,
+                                                                    'text_score': lps}}
     
     def define_car(self, plate) -> None:
         # self.tracked_car
-        return 0,0,0,0,0
+        x1, y1, x2, y2, score, class_id = plate
+
+        foundIt = False
+        for i in range(len(self.tracked_car)):
+            xcar1, ycar1, xcar2, ycar2, _ = self.tracked_car[i]
+            if x1 > xcar1 and y1 > ycar1 and x2 < xcar2 and y2 < ycar2:
+                car_indx = i
+                foundIt = True
+                break
+
+        if foundIt:
+            return self.tracked_car[car_indx]
+        return -1,-1,-1,-1,-1
+    
+    def read_lp(self, frame) -> tuple[str, int]:
+        return "0", 0
+    
+    
