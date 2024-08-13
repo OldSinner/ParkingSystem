@@ -13,30 +13,31 @@ class Detector:
         ret = True
         frame_nr = -1
 
-        while ret :
+        # while ret :
             # Some preparing
-            frame_nr += 1
-            ret, frame = self.prepare_frame()
+        frame_nr += 1
+        ret, frame = self.prepare_frame()
             # Detection
-            cars = self.detect_cars(frame)
-            tracks = self.track(cars)
-            print(tracks)
+        cars = self.detect_cars(frame)
+        self.tracked_car = self.track(cars)
+        self.find_plates(frame)
             #  Display 
-            self.display_bounds(frame,tracks)
-            key = self.display(frame)
-            if key == 27:
-                break
-            if ret:
-                pass
-
+        key = self.display(frame)
+        # if key == 27:
+        #     break
+        # if ret:
+        #     pass
+    def prepare_frame_img(self):
+        frame = cv2.imread("./TestData/carphoto_1.png")
+        return True,frame
     def prepare_frame(self):
         ret, frame = self.cap.read()
-        frame = cv2.resize(frame,(1280,720))
+        frame = cv2.resize(frame,(1920,1080))
         return ret,frame
 
     def display(self, frame):
         cv2.imshow("Frame",frame)
-        key = cv2.waitKey(30)
+        key = cv2.waitKey(0)
         return key
     
     def detect_cars(self, frame) -> list:
@@ -55,4 +56,18 @@ class Detector:
         plates = self.license_plate(frame)[0]
         for plate in plates.boxes.data.tolist():
             x1, y1, x2, y2, score, class_id = plate
-            
+            cx1, cy1, cx2, cy2, cid = self.define_car(plate)
+            # process lp
+            lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
+            lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
+            _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
+
+            cv2.imshow("LP",lp_crop)
+            cv2.imshow("Gray", lp_gray_cop)
+            cv2.imshow("Tesh", lp_gray_treshhold)
+
+
+    
+    def define_car(self, plate) -> None:
+        # self.tracked_car
+        return 0,0,0,0,0
