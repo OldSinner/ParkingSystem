@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Detector", "Detector\Detector.pyproj", "{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FE2FAC7-A01B-45C1-8624-094B073456A1}
+	EndGlobalSection
+EndGlobal

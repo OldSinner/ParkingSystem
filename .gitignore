@@ -15,7 +15,8 @@ bower_components/
 
 # IDEs and editors
 .idea/
-
+.vs/*
+*/.vs/*
 # misc
 .sass-cache/
 connect.lock/
@@ -182,7 +183,7 @@ TestData/
 
 # mkdocs documentation
 /site
-
+*/.vs
 # mypy
 .mypy_cache/
 .dmypy.json
