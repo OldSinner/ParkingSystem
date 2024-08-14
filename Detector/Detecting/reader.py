@@ -1,7 +1,7 @@
 from ultralytics import YOLO
-from const import *
+from Helpers.const import *
 from Sort.sort import *
-from cv2short import *
+from Helpers.cv2short import *
 import cv2
 import easyocr
 class Reader:

@@ -1,5 +1,5 @@
 import unittest
-from lp_format import *
+from Detector.Helpers.lp_format import *
 class TestSum(unittest.TestCase):
     def test_format_license_plate_good_long(self):
         data = ["CB","123AS","PL"]

@@ -1,5 +1,5 @@
 
-from detector import Detector
+from Detecting.detector import Detector
 
 
 detector = Detector()

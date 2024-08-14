@@ -1,9 +1,9 @@
-from reader import Reader
-from detector_state import DetectorState
-from cv2short import *
-from broker import Broker
+from Detecting.reader import Reader
+from Detecting.detector_state import DetectorState
+from Helpers.cv2short import *
+from Communication.broker import Broker
 import cv2
-from const import *
+from Helpers.const import *
 
 
 class Detector:
@@ -25,7 +25,7 @@ class Detector:
                     self.scan_for_car(frame)
                 case DetectorState.PROCESSING_CAR:
                     pass
-                case DetectorState.WAITING_FOR_DESAPEAR_CAR:
+                case DetectorState.WAITING_FOR_GATE_CLOSE:
                     pass
             cv2draw_stats(frame,[])
             cv2.imshow("CAM"+str(CAM_NUMBER),frame)
