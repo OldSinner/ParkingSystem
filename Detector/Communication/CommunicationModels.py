@@ -1,5 +1,6 @@
 import json
 from typing import Optional, Union
+from Helpers.const import *
 class BrokerModel:
     def __init__(self) -> None:
         self.Response = False;
@@ -29,3 +30,18 @@ class BrokerModel:
                 f"ActionResponse='{self.ActionResponse}', "
                 f"Status='{self.Status}', "
                 f"Body='{self.Body}')")
+    
+class GateSignal:
+    def __init__(self, GateNumber, Type):
+        self.GateNumber = GateNumber
+        self.Action = GATE_OPENCLOSE_ACTION
+        self.Type = Type
+    def to_dict(self):
+        return {
+            'GateNumber': self.GateNumber,
+            'Action': self.Action,
+            'Type': self.Type,
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())

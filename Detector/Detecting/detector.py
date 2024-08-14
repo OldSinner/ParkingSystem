@@ -15,8 +15,9 @@ class Detector:
         self.reader = Reader()
         self.frame_without_car = 0
         # Comunication
+        self.BrokerSender = BrokerSender(self)
         self.BrokerReceiver = BrokerReceiver(self)
-        self.threads = []
+        self.RunBrokers()
         # Prepare Cap
         cap = cv2.VideoCapture(CAM_NUMBER)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
@@ -32,7 +33,6 @@ class Detector:
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
-        self.RunBrokers()
         # Main Loop
         while True:
             _, frame = self.cap.read()
@@ -101,6 +101,8 @@ class Detector:
         car_Crop = frame[int(cy1):int(cy2),int(cx1):int(cx2),:]
         cv2.imwrite(filepath_c,car_Crop)
         cv2.imwrite(filepath_lp,lp_crop)
+
+        self.BrokerSender.SendOpenGateSignal()
     
 
 
