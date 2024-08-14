@@ -53,7 +53,7 @@ class Reader:
                 _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,127,255,cv2.THRESH_BINARY_INV)
                 lps = self.read_lp(lp_gray_treshhold)
                 self.detected_lp.append(format_license_plate(lps))
-                if len(self.detected_lp) > 10:
+                if len(self.detected_lp) > LP_READING_TRY:
                     counter = Counter(self.detected_lp)
                     car = self.define_car(plate,cars)
                     self.actual_car = car

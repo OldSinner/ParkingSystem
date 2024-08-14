@@ -11,4 +11,8 @@ PICKED_LP = (0,0,255)
 CAR_COLOR = (0,255,0)
 CAR_THICK = 2
 STAT_THICK = 2
+
+FRAME_WITHOUT_CAR = 10
+
+LP_READING_TRY = 10
 # https://github.com/abewley/sort/blob/master/sort.py object tracking

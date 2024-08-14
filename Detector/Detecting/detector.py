@@ -54,7 +54,7 @@ class Detector:
                 self.detector_stats.detected_lp = text
         else:
             self.frame_without_car += 1
-            if self.frame_without_car > 10:
+            if self.frame_without_car > FRAME_WITHOUT_CAR:
                 self.state = DetectorState.SCANNING_FOR_CAR
     def prepare_cap(self):
         self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
