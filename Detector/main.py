@@ -1,9 +1,6 @@
-from reader import *
-from broker import *
-import cv2
 
-# detector = Detector()
-# detector.detect_from_img()
+from detector import Detector
 
-broker = Broker()
-broker.TestConnect()
+
+detector = Detector()
+detector.run()
