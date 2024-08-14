@@ -1,3 +1,5 @@
+using GateHandlerUI;
+
 namespace GateHandler
 {
     internal static class Program
@@ -11,7 +13,7 @@ namespace GateHandler
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run();
+            Application.Run(new GateHandlerMainWindow());
         }
     }
 }

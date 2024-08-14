@@ -5,6 +5,10 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Detector", "Detector\Detector.pyproj", "{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GateHandlerUI", "GateHandler\GateHandlerUI.csproj", "{AE2824DB-45F5-41FD-87F3-7441CE5CF7DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GateHandlerLibary", "GateHandlerLibary\GateHandlerLibary.csproj", "{84DADDA4-9FB1-4F43-B105-8D75DFF00AE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FD91FB6-6ED7-4E31-A72C-4DD9C592B3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE2824DB-45F5-41FD-87F3-7441CE5CF7DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE2824DB-45F5-41FD-87F3-7441CE5CF7DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE2824DB-45F5-41FD-87F3-7441CE5CF7DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE2824DB-45F5-41FD-87F3-7441CE5CF7DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84DADDA4-9FB1-4F43-B105-8D75DFF00AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84DADDA4-9FB1-4F43-B105-8D75DFF00AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84DADDA4-9FB1-4F43-B105-8D75DFF00AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84DADDA4-9FB1-4F43-B105-8D75DFF00AE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

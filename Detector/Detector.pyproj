@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4fd91fb6-6ed7-4e31-a72c-4dd9c592b3ad</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Detector.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -26,7 +26,7 @@
     <Compile Include="Detecting\detector_state.py" />
     <Compile Include="Detecting\detector_stats.py" />
     <Compile Include="Detecting\reader.py" />
-    <Compile Include="Detector.py" />
+    <Compile Include="main.py" />
     <Compile Include="Helpers\const.py" />
     <Compile Include="Helpers\cv2short.py" />
     <Compile Include="Helpers\lp_format.py" />

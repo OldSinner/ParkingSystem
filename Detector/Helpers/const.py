@@ -17,4 +17,11 @@ FRAME_WITHOUT_CAR = 10
 LP_READING_TRY = 10
 
 PATH_TO_FILE = "C:/ParkingSystem/"
+
+
+
+LP_CODE_QUEUE = "LP_CODES"
+OPEN_GATE_1 = "OPEN_GATE_1"
+GATE_ACTION_CLOSED = "GATE_ACTION_CLOSED"
+
 # https://github.com/abewley/sort/blob/master/sort.py object tracking
