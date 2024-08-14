@@ -4,7 +4,8 @@ VIDEO_PATH = "./TestData/testvideo.mp4"
 VEHICLES_IDS = [2,3,5,7]
 CAM_NUMBER = 1
 
-
+STAT_COLOR = (255,0,0)
 CAR_COLOR = (0,255,0)
 CAR_THICK = 2
+STAT_THICK = 2
 # https://github.com/abewley/sort/blob/master/sort.py object tracking
