@@ -22,7 +22,7 @@ class Reader:
             return (False,[])
     
     def detect_cars(self, frame) -> list:
-        detections = self.car_model(frame)[0]
+        detections = self.car_model(frame, verbose = False)[0]
         detections_ = []
         for detection in detections.boxes.data.tolist():
             x1, y1, x2, y2, score, class_id = detection
@@ -37,8 +37,8 @@ class Reader:
     # -1 - Detected Correctly
     # 0 - Detected More than one
     # 1 - Not detected
-    def find_plates(self,frame, cars) -> None:
-        plates = self.license_plate(frame)[0]
+    def find_plates(self,frame, cars) -> tuple[int,str]:
+        plates = self.license_plate(frame, verbose = False)[0]
         if len(plates) > 1:
             return (0,"")
         elif len(plates) == 1:
@@ -47,7 +47,7 @@ class Reader:
                 # process lp
                 lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
                 lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
-                _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
+                _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,127,255,cv2.THRESH_BINARY_INV)
 
                 car = self.define_car(plate,cars)
                 self.actual_car = car
@@ -59,7 +59,7 @@ class Reader:
         
     def define_car(self, plate, detections) :
         # self.tracked_car
-        x1, y1, x2, y2, score, class_id = plate
+        x1, y1, x2, y2, _, _ = plate
         foundIt = False
         for i in range(len(detections)):
             xcar1, ycar1, xcar2, ycar2, _ = detections[i]
@@ -78,7 +78,7 @@ class Reader:
         detected_words = []
         cv2.imshow("lp",frame)
         for detection in detections:
-            bbox, text, score = detection
+            _, text, _ = detection
             detected_words.append(text)
         return detected_words        
 

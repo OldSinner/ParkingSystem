@@ -16,6 +16,8 @@ def cv2draw_stats(frame, stats:Detector_Stats):
     cv2.putText(frame,"Time: "+str(current_time),(MARGIN,MARGIN + 0*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
     cv2.putText(frame,"Car detected: "+str(stats.car_detected),(MARGIN,MARGIN + 1*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
     cv2.putText(frame,"Detector state: "+str(stats.detector_state),(MARGIN,MARGIN + 2*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
+    cv2.putText(frame,"Detected LP: "+str(stats.detected_lp),(MARGIN,MARGIN + 3*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
+
 
 
     # cv2.putText(frame,"DETECTED CARS: "+ )

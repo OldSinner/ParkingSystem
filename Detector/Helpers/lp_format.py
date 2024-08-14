@@ -3,14 +3,21 @@
 # 1 - Detected too much characters
 # 2 - Detected too few  character
 def format_license_plate(lps):
+    print(lps)
+    lps = [s.replace(" ", "") for s in lps]
+    lps = [s.replace(":", "") for s in lps]
+    lps = [s.replace("~", "") for s in lps]
+    lps = [s.replace("/", "") for s in lps]
+    lps = [s.replace("?", "") for s in lps]
+    lps = [s.replace("_", "") for s in lps]
+    lps = [s.replace("-", "") for s in lps]
+
     if len(lps) == 0:
         return (0, "")
     if len(lps) == 1:
         lp = lps[0]
-        if len(lp) > 7:
+        if len(lp) > 8:
             return (1, "")
-        if len(lp) == 7:
-            return -1, lps[0]
         if(len(lp)) < 4:
             return (2, "")
         return -1, lps[0]
@@ -21,8 +28,10 @@ def format_license_plate(lps):
     
     lps_sort = sorted(lps, key=len)
     lp = "".join(lps_sort)
-    if  len(lp) < 3 or len(lp) > 7:
+    if  len(lp) < 3 or len(lp) > 8:
         return 1, ""
+    print("DETECTED")
+    print(lp)
     return -1, "".join(lps_sort)
 
     
