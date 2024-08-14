@@ -3,6 +3,7 @@ from enum import Enum
 from Helpers.cv2short import *
 from Helpers.const import *
 from datetime import datetime
+from Communication.Broker import *
 import cv2
 import os 
 import threading
@@ -13,15 +14,25 @@ class Detector:
         # Reading
         self.reader = Reader()
         self.frame_without_car = 0
-
+        # Comunication
+        self.BrokerReceiver = BrokerReceiver(self)
+        self.threads = []
         # Prepare Cap
         cap = cv2.VideoCapture(CAM_NUMBER)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_WIDTH)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
         self.cap = cap
+    def __enter__(self):
+        return self;
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.BrokerReceiver.Disspose()
+        pass
+    def RunBrokers(self):
+        threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
+        self.RunBrokers()
         # Main Loop
         while True:
             _, frame = self.cap.read()
@@ -37,9 +48,10 @@ class Detector:
 
             self.DrawDetecionRegions(frame)
             cv2.imshow("CAM"+str(CAM_NUMBER),frame)
-            
-            cv2.waitKey(60)
             self.reader.Clean()
+            key = cv2.waitKey(60)
+            if key == 27:
+                break
 
     def DrawDetecionRegions(self, frame):
         cv2draw_stats(frame,self.detectorStats)

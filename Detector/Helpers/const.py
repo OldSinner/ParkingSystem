@@ -13,7 +13,6 @@ CAR_THICK = 2
 STAT_THICK = 2
 
 FRAME_WITHOUT_CAR = 10
-
 LP_READING_TRY = 10
 
 PATH_TO_FILE = "C:/ParkingSystem/"
@@ -21,9 +20,8 @@ PATH_TO_FILE = "C:/ParkingSystem/"
 CAM_WIDTH = 1280
 CAM_HEIGHT = 720
 
-
-LP_CODE_QUEUE = "LP_CODES"
-OPEN_GATE_1 = "OPEN_GATE_1"
-GATE_ACTION_CLOSED = "GATE_ACTION_CLOSED"
+APP_NAME = "DETECTOR_GATE_IN_1"
+ROUTE = "IN"
+MQ_URL = "localhost"
 
 # https://github.com/abewley/sort/blob/master/sort.py object tracking

@@ -1,6 +1,5 @@
 
-from Detecting.detector import Detector
+from Detecting.Detector import Detector
 
-detector = Detector();
-detector.Run()
-
+with Detector() as detector:
+    detector.Run()
