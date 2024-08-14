@@ -15,7 +15,7 @@ class Detector:
         self.cap = cv2.VideoCapture(CAM_NUMBER)
         self.detector_stats = Detector_Stats()
         self.frame_to_detect = {}
-
+        self.frame_without_car = 0
 
     def run(self):
         # Main Loop
@@ -41,16 +41,21 @@ class Detector:
             cv2short_rect_lp(frame,lx1,ly1,lx2,ly2)
 
             cv2.imshow("CAM"+str(CAM_NUMBER),frame)
-            cv2.waitKey(30)
+            cv2.waitKey(60    )
             self.reader.clean()
 
     def scan_for_lp(self,frame):
         detected, detecions = self.reader.scan_for_car(frame)
         if detected:
+            self.frame_without_car = 0
             res, text = self.reader.find_plates(frame,detecions)
             if res == -1:
                 self.state = DetectorState.WAITING_FOR_GATE_CLOSE
                 self.detector_stats.detected_lp = text
+        else:
+            self.frame_without_car += 1
+            if self.frame_without_car > 10:
+                self.state = DetectorState.SCANNING_FOR_CAR
     def prepare_cap(self):
         self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
         width = 1280
@@ -69,5 +74,7 @@ class Detector:
         else:
             print("NotDetected")
             self.detector_stats.car_detected = len(detecions)
+
+          
         
     
