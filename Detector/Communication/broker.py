@@ -16,11 +16,20 @@ class Broker:
         obj = {
             "LP_CODE":lp_code,
             "PATH":path,
-            "Time":datetime.now().strftime("%m/%d/%YT%H:%M:%S")
+            "TIME":datetime.now().strftime("%m/%d/%YT%H:%M:%S")
         }
         channel.basic_publish(exchange='',
                       routing_key='LP_CODES',
                       body=json.dumps(obj))
+        channel.queue_declare(queue='OPEN_GATE_1')
+        obj = {
+            "LpCode":lp_code,
+            "Time":datetime.now().strftime("%m/%d/%YT%H:%M:%S")
+        }
+        channel.basic_publish(exchange='',
+                      routing_key='OPEN_GATE_1',
+                      body=json.dumps(obj))
+        
 
 class BrokerConsumer:
     def __init__(self, parent) -> None:
