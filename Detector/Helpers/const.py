@@ -21,10 +21,8 @@ CAM_WIDTH = 1280
 CAM_HEIGHT = 720
 
 APP_NAME = "DETECTOR_GATE_IN_1"
-ROUTE = "IN"
 MQ_URL = "localhost"
 
 GATE_HANDLER = "GATE_HANDLER"
-GATE_NUMBER = 1
-GATE_OPENCLOSE_ACTION = "OPEN_CLOSE"
+
 # https://github.com/abewley/sort/blob/master/sort.py object tracking

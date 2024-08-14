@@ -1,47 +1,79 @@
 import json
-from typing import Optional, Union
 from Helpers.const import *
-class BrokerModel:
-    def __init__(self) -> None:
-        self.Response = False;
-        self.ActionResponse = ""
-        self.Status = "Success"
-        self.Body = ""
-    def __init__(self, json_input: str) -> None:
-        # Parse the JSON string
-        try:
-            data = json.loads(json_input)
-        except json.JSONDecodeError as e:
-            raise ValueError("Invalid JSON data") from e
+# class BrokerModel:
+#     def __init__(self) -> None:
+#         self.Response = False;
+#         self.ReplyTo = ""
+#         self.Status = "Success"
+#         self.Body = ""
+#     def __init__(self, Response : bool, ReplyTo: str, Status : str, body: str) -> None:
+#         self.Response = Response;
+#         self.ReplyTo = ReplyTo
+#         self.Status = Status
+#         self.Body = body
+        
+#     def __init__(self, json_input: str) -> None:
+#         # Parse the JSON string
+#         try:
+#             data = json.loads(json_input)
+#         except json.JSONDecodeError as e:
+#             raise ValueError("Invalid JSON data") from e
 
-        # Set default values
-        self.Response = False
-        self.ActionResponse = ""
-        self.Status = "Success"
-        self.Body = ""
+#         # Set default values
+#         self.Response = False
+#         self.ReplyTo = ""
+#         self.Status = "Success"
+#         self.Body = ""
 
-        # Update with values from JSON data
-        self.Response = data.get('Response', self.Response)
-        self.ActionResponse = data.get('ActionResponse', self.ActionResponse)
-        self.Status = data.get('Status', self.Status)
-        self.Body = data.get('Body', self.Body)
-    def __repr__(self) -> str:
-        return (f"BrokerModel(Response={self.Response}, "
-                f"ActionResponse='{self.ActionResponse}', "
-                f"Status='{self.Status}', "
-                f"Body='{self.Body}')")
+#         # Update with values from JSON data
+#         self.Response = data.get('Response', self.Response)
+#         self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
+#         self.Status = data.get('Status', self.Status)
+#         self.Body = data.get('Body', self.Body)
+#     def __repr__(self) -> str:
+#         return (f"BrokerModel(Response={self.Response}, "
+#                 f"ActionResponse='{self.ReplyTo}', "
+#                 f"Status='{self.Status}', "
+#                 f"Body='{self.Body}')")
+#     def to_dict(self):
+#         return {
+#             'Response': self.Response,
+#             'ActionResponse': self.ReplyTo,
+#             'Status': self.Status,
+#             'Body': self.Body,
+#         }
+
+#     def to_json(self):
+#         return json.dumps(self.to_dict())
     
-class GateSignal:
-    def __init__(self, GateNumber, Type):
-        self.GateNumber = GateNumber
-        self.Action = GATE_OPENCLOSE_ACTION
-        self.Type = Type
+
+class ActionRequested:
+    def __init__(self, json = None):
+        if json is None:
+            try:
+                data = json.loads(json)
+            except json.JSONDecodeError as e:
+                raise ValueError("Invalid JSON data") from e
+            self.Action = ""
+            self.ReplyTo = ""
+            self.Action = data.get('Action', self.Action)
+            self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
+        else:
+            self.Action = ""
+            self.ReplyTo = ""
+        
+    def __init__(self, Action, ReplyTo : None | str = None):
+        self.Action = Action
+
+        if ReplyTo is None:
+            self.ReplyTo = APP_NAME
+        else:
+            self.ReplyTo = ""
+
     def to_dict(self):
         return {
-            'GateNumber': self.GateNumber,
             'Action': self.Action,
-            'Type': self.Type,
+            'ReplyTo': self.ReplyTo,
         }
-
     def to_json(self):
         return json.dumps(self.to_dict())

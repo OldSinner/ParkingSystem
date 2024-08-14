@@ -8,8 +8,6 @@ class BrokerReceiver:
         
     def callback(self,ch, method, properties, body):
         print(f" [x] Received {body}")
-        mess = BrokerModel(body)
-        print(mess)
     def Disspose(self):
         self.connection.close()
     def Consume(self):
@@ -25,7 +23,7 @@ class BrokerSender:
     def SendOpenGateSignal(self):
         channel = self.connection.channel()
         channel.queue_declare(queue=GATE_HANDLER)
-        signal = GateSignal(1,"OPEN")
+        signal = ActionRequested("OPEN_GATE")
         channel.basic_publish(exchange='',
                       routing_key=GATE_HANDLER,
                       body=signal.to_json())
