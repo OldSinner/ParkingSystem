@@ -92,39 +92,7 @@ class Reader:
             detected_words.append(text)
         return detected_words        
 
-    # def detect(self) -> None:
-    #     ret = True
-    #     while ret and self.frame_nr < 10:
-    #         # Some preparing
-    #         self.frame_nr += 1
-    #         ret, frame = self.prepare_frame()
-    #         # Detection
-    #         cars = self.detect_cars(frame)
-    #         self.tracked_car = self.track(cars)
-    #         self.find_plates(frame)
-    #         #  Display 
-    #         key = self.display(frame)
-    #         if key == 27:
-    #             break
-    #         if ret:
-    #             pass
-    # def prepare_frame_img(self):
-    #     frame = cv2.imread("./TestData/test3.jpg")
-    #     return True,frame
-    # def prepare_frame(self):
-    #     ret, frame = self.cap.read()
-    #     frame = cv2.resize(frame,(1920,1080))
-    #     return ret,frame
-
-    # def display(self, frame):
-    #     cv2.imshow("Frame",frame)
-    #     key = cv2.waitKey(0)
-    #     return key
-    
-
-    
-    # def track(self,list) -> np.ndarray:
-    #    return self.mot_tracker.update(np.asarray(list))
+  
     
   
     
