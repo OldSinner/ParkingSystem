@@ -1,6 +1,5 @@
 from ultralytics import YOLO
 from Helpers.const import *
-from Sort.sort import *
 from Helpers.lp_format import *
 from Helpers.cv2short import *
 import cv2
@@ -52,16 +51,18 @@ class Reader:
                 lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
                 _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,127,255,cv2.THRESH_BINARY_INV)
                 lps = self.read_lp(lp_gray_treshhold)
-                self.detected_lp.append(format_license_plate(lps))
+                code , tx = format_license_plate(lps)
+                if code == -1:
+                    self.detected_lp.append(tx)
                 if len(self.detected_lp) > LP_READING_TRY:
                     counter = Counter(self.detected_lp)
                     car = self.define_car(plate,cars)
                     self.actual_car = car
                     self.actual_lp = plate
                     lp = counter.most_common(1)[0][0]
-                    print(lp)
                     self.detected_lp = []
-                    return -1, lp
+                    print(counter)
+                    return (-1, lp)
                 return (2,"")
         else:
             return (2,"")

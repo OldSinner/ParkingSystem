@@ -15,4 +15,6 @@ STAT_THICK = 2
 FRAME_WITHOUT_CAR = 10
 
 LP_READING_TRY = 10
+
+PATH_TO_FILE = "C:/ParkingSystem/"
 # https://github.com/abewley/sort/blob/master/sort.py object tracking

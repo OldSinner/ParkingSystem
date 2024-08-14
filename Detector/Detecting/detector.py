@@ -3,10 +3,10 @@ from Detecting.detector_state import DetectorState
 from Detecting.detector_stats import *
 from Helpers.cv2short import *
 from Communication.broker import Broker
-import cv2
 from Helpers.const import *
-
-
+from datetime import datetime
+import cv2
+import os 
 class Detector:
     def __init__(self):
         self.state = DetectorState.SCANNING_FOR_CAR
@@ -17,6 +17,13 @@ class Detector:
         self.frame_to_detect = {}
         self.frame_without_car = 0
 
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Cleaning!")
+        self.broker.disspose()
+        pass
+    
     def run(self):
         # Main Loop
         ret = True
@@ -52,6 +59,7 @@ class Detector:
             if res == -1:
                 self.state = DetectorState.WAITING_FOR_GATE_CLOSE
                 self.detector_stats.detected_lp = text
+                self.save_photos(frame,text,self.reader.actual_lp,self.reader.actual_car)
         else:
             self.frame_without_car += 1
             if self.frame_without_car > FRAME_WITHOUT_CAR:
@@ -63,6 +71,22 @@ class Detector:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
+    def save_photos(self,frame,lp_number,lp,car) -> None:
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        folder_name = f"{lp_number}_{current_date}"
+        path = os.path.join(PATH_TO_FILE,folder_name)
+        os.makedirs(path,exist_ok=True)
+        filepath_c = os.path.join(path,f"Car_{lp_number}.jpg")
+        filepath_lp = os.path.join(path,f"LP_{lp_number}.jpg")
+
+        # 
+        cx1,cy1,cx2,cy2,_ = car
+        x1, y1, x2, y2, score, _ = lp
+        lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
+        car_Crop = frame[int(cy1):int(cy2),int(cx1):int(cx2),:]
+        cv2.imwrite(filepath_c,car_Crop)
+        cv2.imwrite(filepath_lp,lp_crop)
+
     def scan_for_car(self, frame):
         detected, detecions = self.reader.scan_for_car(frame)
         if detected:
@@ -72,7 +96,6 @@ class Detector:
                 x1,y1,x2,y2, _ = detect
                 cv2short_rect_car(frame,x1,y1,x2,y2)
         else:
-            print("NotDetected")
             self.detector_stats.car_detected = len(detecions)
 
           

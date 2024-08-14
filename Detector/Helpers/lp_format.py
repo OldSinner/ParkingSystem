@@ -2,8 +2,7 @@
 # 0 - Not Detected
 # 1 - Detected too much characters
 # 2 - Detected too few  character
-def format_license_plate(lps):
-    print(lps)
+def format_license_plate(lps) -> tuple[int,str]:
     lps = [s.replace(" ", "") for s in lps]
     lps = [s.replace(":", "") for s in lps]
     lps = [s.replace("~", "") for s in lps]
@@ -30,8 +29,6 @@ def format_license_plate(lps):
     lp = "".join(lps_sort)
     if  len(lp) < 3 or len(lp) > 8:
         return 1, ""
-    print("DETECTED")
-    print(lp)
     return -1, "".join(lps_sort)
 
     
