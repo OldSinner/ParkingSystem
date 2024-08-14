@@ -1,4 +1,4 @@
-from detector import *
+from reader import *
 from broker import *
 import cv2
 
