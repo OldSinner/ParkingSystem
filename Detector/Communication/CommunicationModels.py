@@ -54,12 +54,12 @@ class ActionRequested:
                 data = json.loads(json)
             except json.JSONDecodeError as e:
                 raise ValueError("Invalid JSON data") from e
-            self.Action = ""
+            self.Action = 0
             self.ReplyTo = ""
             self.Action = data.get('Action', self.Action)
             self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
         else:
-            self.Action = ""
+            self.Action =0
             self.ReplyTo = ""
         
     def __init__(self, Action, ReplyTo : None | str = None):

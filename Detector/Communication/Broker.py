@@ -23,7 +23,7 @@ class BrokerSender:
     def SendOpenGateSignal(self):
         channel = self.connection.channel()
         channel.queue_declare(queue=GATE_HANDLER)
-        signal = ActionRequested("OPEN_GATE")
+        signal = ActionRequested(1)
         channel.basic_publish(exchange='',
                       routing_key=GATE_HANDLER,
                       body=signal.to_json())
