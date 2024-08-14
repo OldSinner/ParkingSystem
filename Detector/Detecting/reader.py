@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 from Helpers.const import *
 from Sort.sort import *
+from Helpers.lp_format import *
 from Helpers.cv2short import *
 import cv2
 import easyocr
@@ -8,17 +9,14 @@ class Reader:
     def __init__(self) -> None:
         self.car_model = YOLO(CAR_DETECTOR_MODEL)
         self.license_plate = YOLO(LICENCE_PLATE_MODEL)
-        self.mot_tracker = Sort()
-        self.frame_nr = -1
         self.reader = easyocr.Reader(['en'], gpu=True)
+        self.actual_car = (-1,-1,-1,-1,-1)
+        self.actual_lp = (-1,-1,-1,-1,-1,-1)
         pass
 
     def scan_for_car(self, frame) -> tuple[bool,list]:
         detection_list = self.detect_cars(frame)
         if len(detection_list) > 0:
-            for detect in detection_list:
-                x1, y1, x2, y2, score = detect
-                cv2short_rect_car(frame,x1,y1,x2,y2)
             return (True,detection_list)
         else:
             return (False,[])
@@ -32,17 +30,60 @@ class Reader:
                 detections_.append([x1, y1, x2, y2, score])
         return detections_
     
-    # def detect_from_img(self) -> None:
-    #     self.frame_nr += 1
-    #     ret, frame = self.prepare_frame_img()
-    #     cars = self.detect_cars(frame)
-    #     self.tracked_car = self.track(cars)
-    #     self.find_plates(frame)
-    #     key = self.display(frame)
+    def clean(self) -> None:
+        self.actual_car = (-1,-1,-1,-1,-1)
+        self.actual_lp = (-1,-1,-1,-1,-1,-1)
+
+    # -1 - Detected Correctly
+    # 0 - Detected More than one
+    # 1 - Not detected
+    def find_plates(self,frame, cars) -> None:
+        plates = self.license_plate(frame)[0]
+        if len(plates) > 1:
+            return (0,"")
+        elif len(plates) == 1:
+            for plate in plates.boxes.data.tolist():
+                x1, y1, x2, y2, score, _ = plate
+                # process lp
+                lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
+                lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
+                _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
+
+                car = self.define_car(plate,cars)
+                self.actual_car = car
+                self.actual_lp = plate
+                lps = self.read_lp(lp_gray_treshhold)
+                return format_license_plate(lps)
+        else:
+            return (1,"")
+        
+    def define_car(self, plate, detections) :
+        # self.tracked_car
+        x1, y1, x2, y2, score, class_id = plate
+        foundIt = False
+        for i in range(len(detections)):
+            xcar1, ycar1, xcar2, ycar2, _ = detections[i]
+            if x1 > xcar1 and y1 > ycar1 and x2 < xcar2 and y2 < ycar2:
+                car_indx = i
+                foundIt = True
+                break
+
+        if foundIt:
+            return detections[car_indx]
+        return (-1,-1,-1,-1,-1)
+        
+
+    def read_lp(self, frame):
+        detections = self.reader.readtext(frame)
+        detected_words = []
+        cv2.imshow("lp",frame)
+        for detection in detections:
+            bbox, text, score = detection
+            detected_words.append(text)
+        return detected_words        
 
     # def detect(self) -> None:
     #     ret = True
-
     #     while ret and self.frame_nr < 10:
     #         # Some preparing
     #         self.frame_nr += 1
@@ -75,41 +116,10 @@ class Reader:
     # def track(self,list) -> np.ndarray:
     #    return self.mot_tracker.update(np.asarray(list))
     
-    # def find_plates(self,frame) -> None:
-    #     plates = self.license_plate(frame)[0]
-    #     for plate in plates.boxes.data.tolist():
-    #         x1, y1, x2, y2, score, _ = plate
-    #         cx1, cy1, cx2, cy2, cid = self.define_car(plate)
-    #         # process lp
-    #         lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
-    #         lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
-    #         _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,64,255,cv2.THRESH_BINARY_INV)
-
-    #         lp, lps = self.read_lp(lp_gray_treshhold)
+  
     
-    # def define_car(self, plate) -> None:
-    #     # self.tracked_car
-    #     x1, y1, x2, y2, score, class_id = plate
-
-    #     foundIt = False
-    #     for i in range(len(self.tracked_car)):
-    #         xcar1, ycar1, xcar2, ycar2, _ = self.tracked_car[i]
-    #         if x1 > xcar1 and y1 > ycar1 and x2 < xcar2 and y2 < ycar2:
-    #             car_indx = i
-    #             foundIt = True
-    #             break
-
-    #     if foundIt:
-    #         return self.tracked_car[car_indx]
-    #     return -1,-1,-1,-1,-1
+   
     
-    # def read_lp(self, frame):
-    #     detections = self.reader.readtext(frame)
-    #     detected_words = []
-    #     cv2.imshow("lp",frame)
-    #     for detection in detections:
-    #         bbox, text, score = detection
-    #         detected_words.append(text)
-    #     return detected_words
+    
     
     
