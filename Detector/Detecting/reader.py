@@ -5,6 +5,7 @@ from Helpers.lp_format import *
 from Helpers.cv2short import *
 import cv2
 import easyocr
+from collections import Counter
 class Reader:
     def __init__(self) -> None:
         self.car_model = YOLO(CAR_DETECTOR_MODEL)
@@ -12,6 +13,7 @@ class Reader:
         self.reader = easyocr.Reader(['en'], gpu=True)
         self.actual_car = (-1,-1,-1,-1,-1)
         self.actual_lp = (-1,-1,-1,-1,-1,-1)
+        self.detected_lp = []
         pass
 
     def scan_for_car(self, frame) -> tuple[bool,list]:
@@ -37,6 +39,7 @@ class Reader:
     # -1 - Detected Correctly
     # 0 - Detected More than one
     # 1 - Not detected
+    # 2 - Still processing
     def find_plates(self,frame, cars) -> tuple[int,str]:
         plates = self.license_plate(frame, verbose = False)[0]
         if len(plates) > 1:
@@ -48,14 +51,20 @@ class Reader:
                 lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
                 lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
                 _ , lp_gray_treshhold = cv2.threshold(lp_gray_cop,127,255,cv2.THRESH_BINARY_INV)
-
-                car = self.define_car(plate,cars)
-                self.actual_car = car
-                self.actual_lp = plate
                 lps = self.read_lp(lp_gray_treshhold)
-                return format_license_plate(lps)
+                self.detected_lp.append(format_license_plate(lps))
+                if len(self.detected_lp) > 10:
+                    counter = Counter(self.detected_lp)
+                    car = self.define_car(plate,cars)
+                    self.actual_car = car
+                    self.actual_lp = plate
+                    lp = counter.most_common(1)[0][0]
+                    print(lp)
+                    self.detected_lp = []
+                    return -1, lp
+                return (2,"")
         else:
-            return (1,"")
+            return (2,"")
         
     def define_car(self, plate, detections) :
         # self.tracked_car
