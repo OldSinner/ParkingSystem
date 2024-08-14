@@ -2,26 +2,29 @@ from Detecting.reader import Reader
 from Detecting.detector_state import DetectorState
 from Detecting.detector_stats import *
 from Helpers.cv2short import *
-from Communication.broker import Broker
+from Communication.broker import Broker, BrokerConsumer
 from Helpers.const import *
 from datetime import datetime
 import cv2
 import os 
+import threading
 class Detector:
     def __init__(self):
         self.state = DetectorState.SCANNING_FOR_CAR
         self.reader = Reader()
-        self.broker = Broker()
+        self.broker = Broker(self)
+        self.consumer = BrokerConsumer(self)
         self.cap = cv2.VideoCapture(CAM_NUMBER)
         self.detector_stats = Detector_Stats()
         self.frame_to_detect = {}
         self.frame_without_car = 0
+        threading.Thread(target=self.consumer.consume_messages, daemon=True).start()
 
     def __enter__(self):
         return self
     def __exit__(self, exc_type, exc_value, traceback):
-        print("Cleaning!")
         self.broker.disspose()
+        self.consumer.disspose()
         pass
     
     def run(self):
@@ -72,13 +75,13 @@ class Detector:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     def save_photos(self,frame,lp_number,lp,car) -> None:
-        current_date = datetime.now().strftime("%Y-%m-%d")
+        current_date = datetime.now().strftime("%m%d%YT%H%M%S")
         folder_name = f"{lp_number}_{current_date}"
         path = os.path.join(PATH_TO_FILE,folder_name)
         os.makedirs(path,exist_ok=True)
         filepath_c = os.path.join(path,f"Car_{lp_number}.jpg")
         filepath_lp = os.path.join(path,f"LP_{lp_number}.jpg")
-
+        self.broker.SendLP(lp_number,folder_name)
         # 
         cx1,cy1,cx2,cy2,_ = car
         x1, y1, x2, y2, score, _ = lp
@@ -86,6 +89,7 @@ class Detector:
         car_Crop = frame[int(cy1):int(cy2),int(cx1):int(cx2),:]
         cv2.imwrite(filepath_c,car_Crop)
         cv2.imwrite(filepath_lp,lp_crop)
+    
 
     def scan_for_car(self, frame):
         detected, detecions = self.reader.scan_for_car(frame)
@@ -98,6 +102,9 @@ class Detector:
         else:
             self.detector_stats.car_detected = len(detecions)
 
+    def gate_closed(self):
+        self.state = DetectorState.SCANNING_FOR_CAR
+        self.detector_stats = Detector_Stats()
           
         
     
