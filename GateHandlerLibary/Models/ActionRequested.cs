@@ -2,7 +2,6 @@
 {
     public record ActionRequested
     {
-        public ActionType Action { get; set; } 
-        public string ReplyTo { get; set; } = string.Empty;
+        public ActionRq Action { get; set; } 
     }
 }
