@@ -5,6 +5,7 @@ from Helpers.const import *
 from datetime import datetime
 from Communication.Broker import *
 import cv2
+import configparser
 import os 
 import threading
 class Detector:
