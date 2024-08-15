@@ -10,7 +10,7 @@ class GateEvent:
         self.Action = 0
         self.ActionType = 0
         self.Body = ""
-        self.EventOccuredDate = datetime.now().strftime("%m%d%YT%H%M%S")
+        self.EventOccuredDate = datetime.now().strftime(JSON_DATE_FORMAT)
     def __init__(self, json_input: str) -> None:
         # Parse the JSON string
         print(json_input)
@@ -25,7 +25,7 @@ class GateEvent:
         self.Action = 0
         self.ActionType = 0
         self.Body = ""
-        self.EventOccuredDate = datetime.now().strftime("%m%d%YT%H%M%S")
+        self.EventOccuredDate = datetime.now().strftime(JSON_DATE_FORMAT)
 
         # Update with values from JSON data
         self.Success = data.get('Success', self.Success)
@@ -68,10 +68,10 @@ class ActionRequested:
             self.RequestDate = data.get('RequestDate', self.RequestDate)
         else:
             self.Action = 0
-            self.Action = datetime.now().strftime("%m%d%YT%H%M%S")
+            self.Action = datetime.now().strftime(JSON_DATE_FORMAT)
     def __init__(self, Action):
         self.Action = Action
-        self.RequestDate = datetime.now().strftime("%m%d%YT%H%M%S")
+        self.RequestDate = datetime.now().strftime(JSON_DATE_FORMAT)
 
     def to_dict(self):
         return {
