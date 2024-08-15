@@ -2,14 +2,16 @@ from ultralytics import YOLO
 from Helpers.const import *
 from Helpers.lp_format import *
 from Helpers.cv2short import *
+from Configuration.Configuration import *
 import cv2
 import easyocr
 from collections import Counter
 class Reader:
-    def __init__(self) -> None:
+    def __init__(self, Configuration : Configuration) -> None:
+        self.config : ReaderConfiguration = Configuration.ReaderConfig
         # Models
-        self.car_model = YOLO(CAR_DETECTOR_MODEL)
-        self.license_plate = YOLO(LICENCE_PLATE_MODEL)
+        self.car_model = YOLO(self.config.car_detector_model)
+        self.license_plate = YOLO(self.config.license_plate_model)
         # Reader
         self.reader = easyocr.Reader(['en'], gpu=True)
         # Position
@@ -23,7 +25,7 @@ class Reader:
         detections_ = []
         for detection in detections.boxes.data.tolist():
             x1, y1, x2, y2, score, class_id = detection
-            if int(class_id) in VEHICLES_IDS:
+            if int(class_id) in self.config.vehicles_ids:
                 detections_.append([x1, y1, x2, y2, score])
         if len(detections_) > 0:
             return (True,detections_)

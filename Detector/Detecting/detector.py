@@ -4,16 +4,17 @@ from Detecting.DetectorEnums import *
 from Helpers.const import *
 from datetime import datetime
 from Communication.Broker import *
+from Configuration.Configuration import Configuration
 import cv2
-import configparser
 import os 
 import threading
 class Detector:
     def __init__(self):
+        self.config = Configuration()
         self.state = DetectorState.SCANNING_FOR_CAR
         self.stats = DetectorStats()
         # Reading
-        self.reader = Reader()
+        self.reader = Reader(self.config)
         self.frame_without_car = 0
         # Comunication
         self.BrokerSender = BrokerSender(self)
@@ -30,6 +31,7 @@ class Detector:
     def __exit__(self, exc_type, exc_value, traceback):
         self.BrokerReceiver.Disspose()
         pass
+
     def RunBrokers(self):
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
