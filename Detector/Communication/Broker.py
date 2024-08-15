@@ -11,13 +11,13 @@ class BrokerReceiver:
         self.connection.close()
 
     def callback(self,ch, method, properties, body):
-        response = ActionResponse(body)
-        self.actionHandler.MakeActionOnRes(response)
+        response = GateEvent(body)
+        self.actionHandler.MakeActionOnEvent(response)
 
     def Consume(self):
         channel = self.connection.channel()
-        channel.queue_declare(queue=APP_NAME)
-        channel.basic_consume(queue=APP_NAME, on_message_callback=self.callback, auto_ack=True)
+        channel.queue_declare(queue=GATE_EVENT_QUEUE)
+        channel.basic_consume(queue=GATE_EVENT_QUEUE, on_message_callback=self.callback, auto_ack=True)
         channel.start_consuming()
 
 class BrokerSender:
@@ -30,10 +30,10 @@ class BrokerSender:
         self.SendGateSignal(1)
     def SendGateSignal(self, action):
         channel = self.connection.channel()
-        channel.queue_declare(queue=GATE_HANDLER)
+        channel.queue_declare(queue=GATE_ACTION_QUEUE)
         signal = ActionRequested(action)
         channel.basic_publish(exchange='',
-                      routing_key=GATE_HANDLER,
+                      routing_key=GATE_ACTION_QUEUE,
                       body=signal.to_json())
         
         

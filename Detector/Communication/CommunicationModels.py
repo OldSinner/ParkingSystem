@@ -1,9 +1,8 @@
 import json
 from Helpers.const import *
 from Communication.ActionEnums import *
-class ActionResponse:
+class GateEvent:
     def __init__(self) -> None:
-        self.ReplyTo = ""
         self.Success = False
         self.Error = "Default Model"
         self.Action = 0
@@ -18,7 +17,6 @@ class ActionResponse:
             raise ValueError("Invalid JSON data") from e
 
         # Set default values
-        self.ReplyTo = ""
         self.Success = False
         self.Error = "Empty Initrialized"
         self.Action = 0
@@ -27,7 +25,6 @@ class ActionResponse:
 
 
         # Update with values from JSON data
-        self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
         self.Success = data.get('Success', self.Success)
         self.Error = data.get('Error', self.Error)
         self.Action = data.get('Action', self.Action)
@@ -36,7 +33,7 @@ class ActionResponse:
 
 
     def __repr__(self) -> str:
-        return (f"ActionResponse(ReplyTo='{self.ReplyTo}', "
+        return (f"ActionResponse("
                 f"Success={self.Success}, "
                 f"Error='{self.Error}', "
                 f"Action='{self.Action}', "
@@ -45,7 +42,6 @@ class ActionResponse:
     
     def to_dict(self):
         return {
-            'ReplyTo': self.ReplyTo,
             'Success': self.Success,
             'Error': self.Error,
             'Action': self.Action,
@@ -63,26 +59,16 @@ class ActionRequested:
                 data = json.loads(json)
             except json.JSONDecodeError as e:
                 raise ValueError("Invalid JSON data") from e
-            self.Action = 0
-            self.ReplyTo = ""
             self.Action = data.get('Action', self.Action)
-            self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
         else:
             self.Action =0
-            self.ReplyTo = ""
         
-    def __init__(self, Action, ReplyTo : None | str = None):
+    def __init__(self, Action):
         self.Action = Action
-
-        if ReplyTo is None:
-            self.ReplyTo = APP_NAME
-        else:
-            self.ReplyTo = ""
 
     def to_dict(self):
         return {
             'Action': self.Action,
-            'ReplyTo': self.ReplyTo,
         }
     def to_json(self):
         return json.dumps(self.to_dict())

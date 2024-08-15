@@ -22,6 +22,7 @@ CAM_HEIGHT = 720
 APP_NAME = "DETECTOR_GATE_IN_1_RESPONSE"
 MQ_URL = "localhost"
 
-GATE_HANDLER = "GATE_HANDLER"
+GATE_ACTION_QUEUE = "GATE_1_HANDLER"
+GATE_EVENT_QUEUE = "GATE_1_EVENT"
 
 # https://github.com/abewley/sort/blob/master/sort.py object tracking
