@@ -1,51 +1,52 @@
 import json
 from Helpers.const import *
-# class BrokerModel:
-#     def __init__(self) -> None:
-#         self.Response = False;
-#         self.ReplyTo = ""
-#         self.Status = "Success"
-#         self.Body = ""
-#     def __init__(self, Response : bool, ReplyTo: str, Status : str, body: str) -> None:
-#         self.Response = Response;
-#         self.ReplyTo = ReplyTo
-#         self.Status = Status
-#         self.Body = body
-        
-#     def __init__(self, json_input: str) -> None:
-#         # Parse the JSON string
-#         try:
-#             data = json.loads(json_input)
-#         except json.JSONDecodeError as e:
-#             raise ValueError("Invalid JSON data") from e
+class ActionResponse:
+    def __init__(self) -> None:
+        self.ReplyTo = ""
+        self.Success = False
+        self.Error = "Default Model"
+        self.Action = ""
+        self.Body = ""
+    def __init__(self, json_input: str) -> None:
+        # Parse the JSON string
+        try:
+            data = json.loads(json_input)
+        except json.JSONDecodeError as e:
+            raise ValueError("Invalid JSON data") from e
 
-#         # Set default values
-#         self.Response = False
-#         self.ReplyTo = ""
-#         self.Status = "Success"
-#         self.Body = ""
+        # Set default values
+        self.ReplyTo = ""
+        self.Success = False
+        self.Error = "Empty Initrialized"
+        self.Action = ""
+        self.Body = ""
 
-#         # Update with values from JSON data
-#         self.Response = data.get('Response', self.Response)
-#         self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
-#         self.Status = data.get('Status', self.Status)
-#         self.Body = data.get('Body', self.Body)
-#     def __repr__(self) -> str:
-#         return (f"BrokerModel(Response={self.Response}, "
-#                 f"ActionResponse='{self.ReplyTo}', "
-#                 f"Status='{self.Status}', "
-#                 f"Body='{self.Body}')")
-#     def to_dict(self):
-#         return {
-#             'Response': self.Response,
-#             'ActionResponse': self.ReplyTo,
-#             'Status': self.Status,
-#             'Body': self.Body,
-#         }
 
-#     def to_json(self):
-#         return json.dumps(self.to_dict())
+        # Update with values from JSON data
+        self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
+        self.Success = data.get('Success', self.Response)
+        self.Error = data.get('Error', self.Status)
+        self.Action = data.get('Action', self.Status)
+        self.Body = data.get('Body', self.Body)
+
+    def __repr__(self) -> str:
+        return (f"ActionResponse(ReplyTo='{self.ReplyTo}', "
+                f"Success={self.Success}, "
+                f"Error='{self.Error}', "
+                f"Action='{self.Action}', "
+                f"Body='{self.Body}')")
     
+    def to_dict(self):
+        return {
+            'ReplyTo': self.ReplyTo,
+            'Success': self.Success,
+            'Error': self.Error,
+            'Action': self.Action,
+            'Body': self.Body,
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 class ActionRequested:
     def __init__(self, json = None):
