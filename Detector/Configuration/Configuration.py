@@ -21,10 +21,23 @@ class Configuration:
             "cam_width": config.getint("Detector", "cam_width"),
             "cam_height": config.getint("Detector", "cam_height"),
         }
+        #
+        # Build CV2 tab
+        cv2_dict = {
+            "stat_color": ast.literal_eval(config.get("CV2", "stat_color")),
+            "picked_car": ast.literal_eval(config.get("CV2", "picked_car")),
+            "picked_lp": ast.literal_eval(config.get("CV2", "picked_lp")),
+            "car_color": ast.literal_eval(config.get("CV2", "car_color")),
+            "car_thick": config.getint("CV2", "car_thick"),
+            "stat_thick": config.getint("CV2", "stat_thick"),
+        }
+
+        # Build CV2 Configuration object
 
         # Build Object for Segments
         self.ReaderConfig = ReaderConfiguration(reader_dict)
         self.DetectorConfig = DetectorConfiguration(detector_dict)
+        self.CV2Configuration = CV2Configuration(cv2_dict)
 
 
 class DetectorConfiguration:
@@ -39,3 +52,13 @@ class ReaderConfiguration:
         self.car_detector_model = yolo["car_detector_model"]
         self.license_plate_model = yolo["license_plate_model"]
         self.vehicles_ids = yolo["vehicles_ids"]
+
+
+class CV2Configuration:
+    def __init__(self, cv2_dict: dict[str, any]) -> None:
+        self.stat_color = cv2_dict.get("stat_color")
+        self.picked_car = cv2_dict.get("picked_car")
+        self.picked_lp = cv2_dict.get("picked_lp")
+        self.car_color = cv2_dict.get("car_color")
+        self.car_thick = cv2_dict.get("car_thick")
+        self.stat_thick = cv2_dict.get("stat_thick")
