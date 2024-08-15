@@ -1,9 +1,9 @@
-﻿using GateHandlerLibary.Models;
+﻿using GateHandler.Models;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
 using System.Text;
 
-namespace GateHandlerLibary
+namespace GateHandler
 {
     public class GatesHandler : IDisposable
     {
@@ -29,12 +29,12 @@ namespace GateHandlerLibary
             var requested = JsonSerializer.Deserialize<ActionRequested>(Encoding.UTF8.GetString(e.Body.ToArray()));
             switch (requested.Action)
             {
-                case ActionType.NONE:
+                case ActionRq.NONE:
                     break;
-                case ActionType.OPEN_GATE:
+                case ActionRq.OPENGATE:
                     OpenGate(requested);
                     break;
-                case ActionType.CLOSE_GATE:
+                case ActionRq.CLOSEGATE:
                     break;
 
             }
@@ -56,7 +56,7 @@ namespace GateHandlerLibary
 
     public class GateEventArg
     {
-        public ActionType Action { get; set; }
+        public ActionRq Action { get; set; }
         public bool Success { get; set; }
     }
 }

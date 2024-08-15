@@ -103,7 +103,7 @@ class Detector:
 
         filepath_c = os.path.join(path,f"Car_{lp_number}.jpg")
         filepath_lp = os.path.join(path,f"LP_{lp_number}.jpg")
-        # 
+        # TODO: Fix Car photo saveing
         cx1,cy1,cx2,cy2,_ = car
         x1, y1, x2, y2, score, _ = lp
         

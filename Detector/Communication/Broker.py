@@ -16,8 +16,11 @@ class BrokerReceiver:
 
     def Consume(self):
         channel = self.connection.channel()
-        channel.queue_declare(queue=GATE_EVENT_QUEUE)
-        channel.basic_consume(queue=GATE_EVENT_QUEUE, on_message_callback=self.callback, auto_ack=True)
+        channel.exchange_declare(exchange=GATE_EVENT_QUEUE, exchange_type='fanout')
+        result = channel.queue_declare(queue='', exclusive=True)
+        queue_name = result.method.queue
+        channel.queue_bind(exchange=GATE_EVENT_QUEUE, queue=queue_name)
+        channel.basic_consume(queue=queue_name, on_message_callback=self.callback, auto_ack=True)
         channel.start_consuming()
 
 class BrokerSender:

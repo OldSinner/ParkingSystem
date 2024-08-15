@@ -25,4 +25,6 @@ MQ_URL = "localhost"
 GATE_ACTION_QUEUE = "GATE_1_HANDLER"
 GATE_EVENT_QUEUE = "GATE_1_EVENT"
 
+JSON_DATE_FORMAT = "%m/%d/%Y %H:%M:%S"
+
 # https://github.com/abewley/sort/blob/master/sort.py object tracking
