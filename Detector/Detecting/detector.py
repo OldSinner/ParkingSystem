@@ -4,33 +4,38 @@ from Detecting.DetectorEnums import *
 from Helpers.const import *
 from datetime import datetime
 from Communication.Broker import *
-from Configuration.Configuration import Configuration
+from Configuration.Configuration import *
 import cv2
-import os 
+import os
 import threading
+
+
 class Detector:
     def __init__(self):
-        self.config = Configuration()
-        self.state = DetectorState.SCANNING_FOR_CAR
-        self.stats = DetectorStats()
-        # Reading
-        self.reader = Reader(self.config)
+        # Config
+        config = Configuration()
+        self.config: DetectorConfiguration = config.DetectorConfig
+        self.state: DetectorState = DetectorState.SCANNING_FOR_CAR
+        self.stats: DetectorStats = DetectorStats()
+        # ---------------------  Reading  --------------------
+        self.reader: Reader = Reader(config)
         self.frame_without_car = 0
-        # Comunication
-        self.BrokerSender = BrokerSender(self)
-        self.BrokerReceiver = BrokerReceiver(self)
+        # ---------------------  Communication  --------------------
+        self.BrokerSender: BrokerSender = BrokerSender(self)
+        self.BrokerReceiver: BrokerReceiver = BrokerReceiver(self)
         self.RunBrokers()
-        # Prepare Cap
-        cap = cv2.VideoCapture(CAM_NUMBER)
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_WIDTH)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
+        # ---------------------  Camera  --------------------
+        cap = cv2.VideoCapture(self.config.cam_number)
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
         self.cap = cap
+
     def __enter__(self):
-        return self;
+        return self
+
     def __exit__(self, exc_type, exc_value, traceback):
-        self.BrokerReceiver.Disspose()
-        pass
+        self.BrokerReceiver.Dispose()
 
     def RunBrokers(self):
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
@@ -44,33 +49,32 @@ class Detector:
                     self.ScanCar(frame)
                 case DetectorState.PROCESSING_CAR:
                     self.ScanLP(frame)
-                    pass
                 case DetectorState.WAITING_FOR_GATE_CLOSE:
                     pass
                 case DetectorState.WAITING_FOR_GATE_OPEN:
                     pass
             self.stats.DetectorState = self.state
 
-            self.DrawDetecionRegions(frame)
-            cv2.imshow("CAM"+str(CAM_NUMBER),frame)
+            self.DrawDetectionRegions(frame)
+            cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
             self.reader.Clean()
             key = cv2.waitKey(60)
             if key == 27:
                 break
 
-    def DrawDetecionRegions(self, frame):
+    def DrawDetectionRegions(self, frame):
 
-        cv2draw_stats(frame,self.stats)
-        cx1,cy1,cx2,cy2,_ = self.reader.actual_car
-        lx1,ly1,lx2,ly2,_,_ = self.reader.actual_lp
-        cv2short_rect_pick_car(frame,cx1,cy1,cx2,cy2)
-        cv2short_rect_lp(frame,lx1,ly1,lx2,ly2)
+        cv2draw_stats(frame, self.stats)
+        cx1, cy1, cx2, cy2, _ = self.reader.actual_car
+        lx1, ly1, lx2, ly2, _, _ = self.reader.actual_lp
+        cv2short_rect_pick_car(frame, cx1, cy1, cx2, cy2)
+        cv2short_rect_lp(frame, lx1, ly1, lx2, ly2)
 
-    def ScanLP(self,frame):
-        detected, detecions = self.ScanCar(frame)
+    def ScanLP(self, frame):
+        detected, detections = self.ScanCar(frame)
         if detected:
             self.frame_without_car = 0
-            res, text = self.reader.FindPlate(frame,detecions)
+            res, text = self.reader.FindPlate(frame, detections)
             if res == -1:
                 self.ProcessCarAndLP(frame, text)
         else:
@@ -85,52 +89,41 @@ class Detector:
             self.state = DetectorState.WAITING_FOR_GATE_OPEN
 
         self.stats.ActualLp = text
-        self.SaveFiles(frame,text,self.reader.actual_lp,self.reader.actual_car)
+        self.SaveFiles(frame, text, self.reader.actual_lp, self.reader.actual_car)
 
     def ScanCar(self, frame):
-        detected, detecions = self.reader.ScanForCar(frame)
+        detected, detections = self.reader.ScanForCar(frame)
+        self.stats.CarCount = len(detections)
         if detected:
-            self.stats.CarCount = len(detecions)
             self.state = DetectorState.PROCESSING_CAR
-            return (detected,detecions)
+            return (detected, detections)
         else:
-            self.stats.CarCount = len(detecions)
-            return (False,[])
+            return (False, [])
 
-    def SaveFiles(self,frame,lp_number,lp,car) -> None:
+    def SaveFiles(self, frame, lp_number, lp, car) -> None:
 
         current_date = datetime.now().strftime("%m%d%YT%H%M%S")
         folder_name = f"{lp_number}_{current_date}"
-        path = os.path.join(PATH_TO_FILE,folder_name)
-        os.makedirs(path,exist_ok=True)
+        path = os.path.join(PATH_TO_FILE, folder_name)
+        os.makedirs(path, exist_ok=True)
 
-        filepath_c = os.path.join(path,f"Car_{lp_number}.jpg")
-        filepath_lp = os.path.join(path,f"LP_{lp_number}.jpg")
-        # TODO: Fix Car photo saveing
-        cx1,cy1,cx2,cy2,_ = car
+        filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
+        filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
+        # TODO: Fix Car photo saving
+        cx1, cy1, cx2, cy2, _ = car
         x1, y1, x2, y2, score, _ = lp
-        
-        lp_crop = frame[int(y1):int(y2),int(x1):int(x2),:]
-        car_Crop = frame[int(cy1):int(cy2),int(cx1):int(cx2),:]
-        cv2.imwrite(filepath_c,car_Crop)
-        cv2.imwrite(filepath_lp,lp_crop)
+
+        lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
+        car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
+        cv2.imwrite(filepath_c, car_Crop)
+        cv2.imwrite(filepath_lp, lp_crop)
 
         self.BrokerSender.SendOpenGateSignal()
-    
 
 
-class DetectorStats():
+class DetectorStats:
     def __init__(self) -> None:
         self.CarCount = 0
         self.DetectorState = DetectorState.SCANNING_FOR_CAR
         self.ActualLp = ""
         self.GateStatus = GateState.CLOSED
-
-
-    
-
-    
-
-          
-        
-    
