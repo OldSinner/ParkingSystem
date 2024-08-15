@@ -7,5 +7,6 @@
         public ActionType ActionType { get; set; }
         public int Action { get; set; }
         public string Body { get; set; } = string.Empty;
+        public DateTime EventOccuredDate { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 import json
 from Helpers.const import *
 from Communication.ActionEnums import *
+from datetime import datetime
+
 class GateEvent:
     def __init__(self) -> None:
         self.Success = False
@@ -8,6 +10,7 @@ class GateEvent:
         self.Action = 0
         self.ActionType = 0
         self.Body = ""
+        self.EventOccuredDate = datetime.now().strftime("%m%d%YT%H%M%S")
     def __init__(self, json_input: str) -> None:
         # Parse the JSON string
         print(json_input)
@@ -22,7 +25,7 @@ class GateEvent:
         self.Action = 0
         self.ActionType = 0
         self.Body = ""
-
+        self.EventOccuredDate = datetime.now().strftime("%m%d%YT%H%M%S")
 
         # Update with values from JSON data
         self.Success = data.get('Success', self.Success)
@@ -30,6 +33,8 @@ class GateEvent:
         self.Action = data.get('Action', self.Action)
         self.ActionType = data.get('ActionType', self.ActionType)
         self.Body = data.get('Body', self.Body)
+        self.EventOccuredDate = data.get('EventOccuredDate', self.EventOccuredDate)
+        
 
 
     def __repr__(self) -> str:
@@ -60,15 +65,18 @@ class ActionRequested:
             except json.JSONDecodeError as e:
                 raise ValueError("Invalid JSON data") from e
             self.Action = data.get('Action', self.Action)
+            self.RequestDate = data.get('RequestDate', self.RequestDate)
         else:
-            self.Action =0
-        
+            self.Action = 0
+            self.Action = datetime.now().strftime("%m%d%YT%H%M%S")
     def __init__(self, Action):
         self.Action = Action
+        self.RequestDate = datetime.now().strftime("%m%d%YT%H%M%S")
 
     def to_dict(self):
         return {
             'Action': self.Action,
+            'RequestDate': self.RequestDate,
         }
     def to_json(self):
         return json.dumps(self.to_dict())
