@@ -172,7 +172,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-TestData/
+TestData/*.jpg
+TestData/*.png
+TestData/*.mp4
 */Models/yolov8n.pt
 # Spyder project settings
 .spyderproject

@@ -2,11 +2,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Channels;
-using GateHandlerLibary.Models;
+using GateHandler.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace GateHandlerLibary
+namespace GateHandler
 {
     public class ActionReceiver : IDisposable
     {
@@ -31,12 +31,12 @@ namespace GateHandlerLibary
             Channel.BasicConsume(GATE_HANDLER_QUEUE, false, eventingBasicConsumer);
         }
 
-        
+
 
         public bool IsConnected => Connection?.IsOpen ?? false;
         public ActionReceiver()
         {
-            
+
         }
         public void Dispose()
         {

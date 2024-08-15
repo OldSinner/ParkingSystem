@@ -1,4 +1,4 @@
-﻿namespace GateHandlerLibary.Models
+﻿namespace GateHandler.Models
 {
     public record ActionRequested
     {
