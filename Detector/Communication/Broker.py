@@ -1,15 +1,19 @@
 import pika
 from Communication.CommunicationModels import *
+from Communication.ActionHandler import *
 from Helpers.const import *
 class BrokerReceiver:
     def __init__(self, detector):
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(MQ_URL))
         self.detector = detector
-        
-    def callback(self,ch, method, properties, body):
-        print(f" [x] Received {body}")
+        self.actionHandler = ActionHandler(detector)
     def Disspose(self):
         self.connection.close()
+
+    def callback(self,ch, method, properties, body):
+        response = ActionResponse(body)
+        self.actionHandler.MakeActionOnRes(response)
+
     def Consume(self):
         channel = self.connection.channel()
         channel.queue_declare(queue=APP_NAME)

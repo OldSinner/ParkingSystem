@@ -1,14 +1,17 @@
 import json
 from Helpers.const import *
+from Communication.ActionEnums import *
 class ActionResponse:
     def __init__(self) -> None:
         self.ReplyTo = ""
         self.Success = False
         self.Error = "Default Model"
-        self.Action = ""
+        self.Action = 0
+        self.ActionType = 0
         self.Body = ""
     def __init__(self, json_input: str) -> None:
         # Parse the JSON string
+        print(json_input)
         try:
             data = json.loads(json_input)
         except json.JSONDecodeError as e:
@@ -18,22 +21,26 @@ class ActionResponse:
         self.ReplyTo = ""
         self.Success = False
         self.Error = "Empty Initrialized"
-        self.Action = ""
+        self.Action = 0
+        self.ActionType = 0
         self.Body = ""
 
 
         # Update with values from JSON data
         self.ReplyTo = data.get('ReplyTo', self.ReplyTo)
-        self.Success = data.get('Success', self.Response)
-        self.Error = data.get('Error', self.Status)
-        self.Action = data.get('Action', self.Status)
+        self.Success = data.get('Success', self.Success)
+        self.Error = data.get('Error', self.Error)
+        self.Action = data.get('Action', self.Action)
+        self.ActionType = data.get('ActionType', self.ActionType)
         self.Body = data.get('Body', self.Body)
+
 
     def __repr__(self) -> str:
         return (f"ActionResponse(ReplyTo='{self.ReplyTo}', "
                 f"Success={self.Success}, "
                 f"Error='{self.Error}', "
                 f"Action='{self.Action}', "
+                f"ActionType='{self.ActionType}', "
                 f"Body='{self.Body}')")
     
     def to_dict(self):
@@ -42,6 +49,7 @@ class ActionResponse:
             'Success': self.Success,
             'Error': self.Error,
             'Action': self.Action,
+            'ActionType': self.ActionType,
             'Body': self.Body,
         }
 

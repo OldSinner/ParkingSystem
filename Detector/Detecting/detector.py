@@ -1,6 +1,6 @@
 from Detecting.Reader import Reader
-from enum import Enum
 from Helpers.cv2short import *
+from Detecting.DetectorEnums import *
 from Helpers.const import *
 from datetime import datetime
 from Communication.Broker import *
@@ -123,15 +123,6 @@ class DetectorStats():
         self.ActualLp = ""
         self.GateStatus = GateState.CLOSED
 
-class DetectorState(Enum):
-    SCANNING_FOR_CAR = 1
-    PROCESSING_CAR = 2
-    WAITING_FOR_GATE_OPEN = 3
-    WAITING_FOR_GATE_CLOSE = 4
-
-class GateState(Enum):
-    OPEN = 1,
-    CLOSED = 2
 
     
 
