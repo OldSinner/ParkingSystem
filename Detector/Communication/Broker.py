@@ -20,12 +20,18 @@ class BrokerSender:
     def __init__(self, detector):
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(MQ_URL))
         self.detector = detector
+    def SendCloseGateSignal(self):
+        self.SendGateSignal(2)
     def SendOpenGateSignal(self):
+        self.SendGateSignal(1)
+    def SendGateSignal(self, action):
         channel = self.connection.channel()
         channel.queue_declare(queue=GATE_HANDLER)
-        signal = ActionRequested(1)
+        signal = ActionRequested(action)
         channel.basic_publish(exchange='',
                       routing_key=GATE_HANDLER,
                       body=signal.to_json())
+        
+        
 
 

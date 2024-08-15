@@ -10,7 +10,7 @@ import threading
 class Detector:
     def __init__(self):
         self.state = DetectorState.SCANNING_FOR_CAR
-        self.detectorStats = DetectorStats()
+        self.stats = DetectorStats()
         # Reading
         self.reader = Reader()
         self.frame_without_car = 0
@@ -44,7 +44,9 @@ class Detector:
                     pass
                 case DetectorState.WAITING_FOR_GATE_CLOSE:
                     pass
-            self.detectorStats.DetectorState = self.state
+                case DetectorState.WAITING_FOR_GATE_OPEN:
+                    pass
+            self.stats.DetectorState = self.state
 
             self.DrawDetecionRegions(frame)
             cv2.imshow("CAM"+str(CAM_NUMBER),frame)
@@ -54,7 +56,8 @@ class Detector:
                 break
 
     def DrawDetecionRegions(self, frame):
-        cv2draw_stats(frame,self.detectorStats)
+
+        cv2draw_stats(frame,self.stats)
         cx1,cy1,cx2,cy2,_ = self.reader.actual_car
         lx1,ly1,lx2,ly2,_,_ = self.reader.actual_lp
         cv2short_rect_pick_car(frame,cx1,cy1,cx2,cy2)
@@ -66,22 +69,29 @@ class Detector:
             self.frame_without_car = 0
             res, text = self.reader.FindPlate(frame,detecions)
             if res == -1:
-                self.state = DetectorState.WAITING_FOR_GATE_CLOSE
-                self.detectorStats.ActualLp = text
-                self.SaveFiles(frame,text,self.reader.actual_lp,self.reader.actual_car)
+                self.ProcessCarAndLP(frame, text)
         else:
             self.frame_without_car += 1
             if self.frame_without_car > FRAME_WITHOUT_CAR:
                 self.state = DetectorState.SCANNING_FOR_CAR
 
+    def ProcessCarAndLP(self, frame, text):
+        if self.stats.GateStatus == GateState.OPEN:
+            self.state = DetectorState.WAITING_FOR_GATE_CLOSE
+        else:
+            self.state = DetectorState.WAITING_FOR_GATE_OPEN
+
+        self.stats.ActualLp = text
+        self.SaveFiles(frame,text,self.reader.actual_lp,self.reader.actual_car)
+
     def ScanCar(self, frame):
         detected, detecions = self.reader.ScanForCar(frame)
         if detected:
-            self.detectorStats.CarCount = len(detecions)
+            self.stats.CarCount = len(detecions)
             self.state = DetectorState.PROCESSING_CAR
             return (detected,detecions)
         else:
-            self.detectorStats.CarCount = len(detecions)
+            self.stats.CarCount = len(detecions)
             return (False,[])
 
     def SaveFiles(self,frame,lp_number,lp,car) -> None:
@@ -111,12 +121,17 @@ class DetectorStats():
         self.CarCount = 0
         self.DetectorState = DetectorState.SCANNING_FOR_CAR
         self.ActualLp = ""
+        self.GateStatus = GateState.CLOSED
 
 class DetectorState(Enum):
     SCANNING_FOR_CAR = 1
     PROCESSING_CAR = 2
-    WAITING_FOR_GATE_CLOSE = 3
+    WAITING_FOR_GATE_OPEN = 3
+    WAITING_FOR_GATE_CLOSE = 4
 
+class GateState(Enum):
+    OPEN = 1,
+    CLOSED = 2
 
     
 

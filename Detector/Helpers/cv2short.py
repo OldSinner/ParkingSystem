@@ -16,7 +16,7 @@ def cv2draw_stats(frame, stats):
     cv2.putText(frame,"Car detected: "+str(stats.CarCount),(MARGIN,MARGIN + 1*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
     cv2.putText(frame,"Detector state: "+str(stats.DetectorState),(MARGIN,MARGIN + 2*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
     cv2.putText(frame,"Detected LP: "+str(stats.ActualLp),(MARGIN,MARGIN + 3*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
-
+    cv2.putText(frame,"Gate Status: "+str(stats.GateStatus),(MARGIN,MARGIN + 4*TEXT_SPACE),1,1.5,STAT_COLOR,STAT_THICK)
 
 
     # cv2.putText(frame,"DETECTED CARS: "+ )
