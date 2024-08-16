@@ -1,6 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,dotnetcore,angular
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,dotnetcore,angular
-
+ParkingSystem.generated.sln
 ### Angular ###
 ## Angular ##
 # compiled output
