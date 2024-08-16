@@ -8,7 +8,7 @@ dist/
 tmp/
 app/**/*.js
 app/**/*.js.map
-
+**/lib64/*
 # dependencies
 node_modules/
 bower_components/

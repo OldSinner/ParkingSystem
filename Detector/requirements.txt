@@ -1,0 +1,5 @@
+pike
+configparser
+cv2
+ultralytics
+easyocr
