@@ -8,6 +8,7 @@ from Configuration.Configuration import *
 import cv2
 import os
 import threading
+import matplotlib.pyplot as plt
 
 
 class Detector:
@@ -25,11 +26,12 @@ class Detector:
         self.BrokerReceiver: BrokerReceiver = BrokerReceiver(self)
         self.RunBrokers()
         # ---------------------  Camera  --------------------
-        cap = cv2.VideoCapture(self.config.cam_number)
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
-        self.cap = cap
+        if not self.config.use_photo:
+            cap = self.get_video_capture()
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
+            self.cap = cap
 
     def __enter__(self):
         return self
@@ -42,8 +44,9 @@ class Detector:
 
     def Run(self):
         # Main Loop
-        while True:
-            _, frame = self.cap.read()
+        ret = True
+        while ret:
+            ret, frame = self.get_frame()
             match self.state:
                 case DetectorState.SCANNING_FOR_CAR:
                     self.ScanCar(frame)
@@ -56,11 +59,19 @@ class Detector:
             self.stats.DetectorState = self.state
 
             self.DrawDetectionRegions(frame)
-            cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
+            # cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
+            plt.imshow(frame)
             self.reader.Clean()
+            print(self.stats)
             key = cv2.waitKey(60)
             if key == 27:
                 break
+
+    def get_frame(self):
+        if self.config.use_photo:
+            return (True, cv2.imread(self.config.cam_photo_path))
+        else:
+            return self.cap.read()
 
     def DrawDetectionRegions(self, frame):
 
@@ -122,8 +133,17 @@ class Detector:
 
 
 class DetectorStats:
+
     def __init__(self) -> None:
         self.CarCount = 0
         self.DetectorState = DetectorState.SCANNING_FOR_CAR
         self.ActualLp = ""
         self.GateStatus = GateState.CLOSED
+
+    def __repr__(self) -> str:
+        return (
+            f"DetectorStats(CarCount={self.CarCount}, "
+            f"DetectorState={self.DetectorState}, "
+            f"ActualLp='{self.ActualLp}', "
+            f"GateStatus={self.GateStatus})"
+        )

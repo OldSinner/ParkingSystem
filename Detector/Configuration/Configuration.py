@@ -5,9 +5,9 @@ import os
 
 class Configuration:
     def __init__(self) -> None:
-        # Read Configurtaion
+        # Read Configuration
         config = configparser.ConfigParser()
-        config.read("./ConfigurationFiles/DetectorConfig.ini")
+        config.read("../ConfigurationFiles/DetectorConfig.ini")
         # Build Reader tab
         reader_dict = {
             "car_detector_model": config.get("Reader", "car_detector_model"),
@@ -20,6 +20,8 @@ class Configuration:
             "cam_number": config.getint("Detector", "cam_number"),
             "cam_width": config.getint("Detector", "cam_width"),
             "cam_height": config.getint("Detector", "cam_height"),
+            "cam_photo_path": config.get("Detector", "cam_photo_path"),
+            "use_photo": ast.literal_eval(config.get("Detector", "use_photo")),
         }
         #
         # Build CV2 tab
@@ -42,6 +44,8 @@ class Configuration:
 
 class DetectorConfiguration:
     def __init__(self, detector_dict) -> None:
+        self.use_photo = detector_dict["use_photo"]
+        self.cam_photo_path = detector_dict["cam_photo_path"]
         self.cam_number = detector_dict["cam_number"]
         self.cam_width = detector_dict["cam_width"]
         self.cam_height = detector_dict["cam_height"]
