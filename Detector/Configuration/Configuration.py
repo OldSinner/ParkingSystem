@@ -22,6 +22,9 @@ class Configuration:
             "cam_height": config.getint("Detector", "cam_height"),
             "cam_photo_path": config.get("Detector", "cam_photo_path"),
             "use_photo": ast.literal_eval(config.get("Detector", "use_photo")),
+            #
+            "path_to_file": config.get("Detector", "path_to_file"),
+            "save_to_file": ast.literal_eval(config.get("Detector", "save_to_file")),
         }
         #
         # Build CV2 tab
@@ -49,6 +52,9 @@ class DetectorConfiguration:
         self.cam_number = detector_dict["cam_number"]
         self.cam_width = detector_dict["cam_width"]
         self.cam_height = detector_dict["cam_height"]
+        #
+        self.path_to_file = detector_dict["path_to_file"]
+        self.save_to_file = detector_dict["save_to_file"]
 
 
 class ReaderConfiguration:

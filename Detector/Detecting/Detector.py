@@ -113,21 +113,22 @@ class Detector:
 
     def SaveFiles(self, frame, lp_number, lp, car) -> None:
 
-        current_date = datetime.now().strftime("%m%d%YT%H%M%S")
-        folder_name = f"{lp_number}_{current_date}"
-        path = os.path.join(PATH_TO_FILE, folder_name)
-        os.makedirs(path, exist_ok=True)
-
-        filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
-        filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
-        # TODO: Fix Car photo saving
-        cx1, cy1, cx2, cy2, _ = car
-        x1, y1, x2, y2, score, _ = lp
-
-        lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
-        car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
-        cv2.imwrite(filepath_c, car_Crop)
-        cv2.imwrite(filepath_lp, lp_crop)
+        if self.config.save_to_file:
+            current_date = datetime.now().strftime("%m%d%YT%H%M%S")
+            folder_name = f"{lp_number}_{current_date}"
+            path = os.path.join(self.config.path_to_file, folder_name)
+            os.makedirs(path, exist_ok=True)
+            #
+            filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
+            filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
+            # TODO: Fix Car photo saving
+            cx1, cy1, cx2, cy2, _ = car
+            x1, y1, x2, y2, score, _ = lp
+            #
+            lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
+            car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
+            cv2.imwrite(filepath_c, car_Crop)
+            cv2.imwrite(filepath_lp, lp_crop)
 
         self.BrokerSender.SendOpenGateSignal()
 
