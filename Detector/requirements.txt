@@ -1,0 +1,5 @@
+pika
+configparser
+opencv-python
+ultralytics
+easyocr
