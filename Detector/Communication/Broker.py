@@ -55,6 +55,6 @@ class BrokerSender:
         signal = ActionRequested(action)
         channel.basic_publish(
             exchange="",
-            routing_key=self.config.gate_action_queue322,
+            routing_key=self.config.gate_action_queue,
             body=signal.to_json(),
         )
