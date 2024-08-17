@@ -22,8 +22,10 @@ class Detector:
         self.reader: Reader = Reader(config)
         self.frame_without_car = 0
         # ---------------------  Communication  --------------------
-        self.BrokerSender: BrokerSender = BrokerSender(self)
-        self.BrokerReceiver: BrokerReceiver = BrokerReceiver(self)
+        self.BrokerSender: BrokerSender = BrokerSender(self, config.MQConfiguration)
+        self.BrokerReceiver: BrokerReceiver = BrokerReceiver(
+            self, config.MQConfiguration
+        )
         self.RunBrokers()
         # ---------------------  Camera  --------------------
         if not self.config.use_photo:

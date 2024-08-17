@@ -37,12 +37,19 @@ class Configuration:
             "stat_thick": config.getint("CV2", "stat_thick"),
         }
 
-        # Build CV2 Configuration object
+        # Build MQ Configuration:
+
+        mq_dict = {
+            "url": config.get("MQ", "url"),
+            "gate_action_queue": config.get("MQ", "gate_action_queue"),
+            "gate_event_queue": config.get("MQ", "gate_event_queue"),
+        }
 
         # Build Object for Segments
         self.ReaderConfig = ReaderConfiguration(reader_dict)
         self.DetectorConfig = DetectorConfiguration(detector_dict)
         self.CV2Configuration = CV2Configuration(cv2_dict)
+        self.MQConfiguration = MQConfiguration(mq_dict)
 
 
 class DetectorConfiguration:
@@ -72,3 +79,10 @@ class CV2Configuration:
         self.car_color = cv2_dict.get("car_color")
         self.car_thick = cv2_dict.get("car_thick")
         self.stat_thick = cv2_dict.get("stat_thick")
+
+
+class MQConfiguration:
+    def __init__(self, mq_dict: dict[str, any]) -> None:
+        self.url = mq_dict.get("url")
+        self.gate_action_queue = mq_dict.get("gate_action_queue")
+        self.gate_event_queue = mq_dict.get("gate_event_queue")
