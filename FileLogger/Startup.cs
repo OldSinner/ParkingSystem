@@ -22,11 +22,7 @@ public class Startup
 
         ServiceCollection services = new();
         services.AddSingleton<IConfiguration>(config);
-        services.AddSingleton<IMessageHandlerService, MessageHandlerService>();
-        services.AddSingleton<IRabbitMqService, RabbitMqService>();
-        services.AddSingleton<ILoggerService, LoggerService>();
-        services.AddSingleton<Logger>(logger);
-
+        services.AddFileLoggerServices(logger);
         Provider = services.BuildServiceProvider();
     }
 
