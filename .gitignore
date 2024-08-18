@@ -246,3 +246,4 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,dotnetcore,angular
 FileLogger/FileLogger.generated.sln
+FileLogger/appsettings.development.json

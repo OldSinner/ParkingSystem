@@ -12,31 +12,29 @@ public class Startup
     {
         var config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json", optional: false)
+        .AddJsonFile("appsettings.development.json", optional: false)
+
         .Build();
 
         ServiceCollection services = new();
+        services.AddSingleton<IConfiguration>(config);
         services.AddSingleton<IMessageHandlerService, MessageHandlerService>();
-        services.AddSingleton<LoggerConfiguration>(new LoggerConfiguration()
+        services.AddSingleton<IRabbitMqService, RabbitMqService>();
+        services.AddSingleton<ILoggerService, LoggerService>();
+        services.AddSingleton(new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate: config.GetSection("LogOutputFormat").Value ?? string.Empty)
         );
         Provider = services.BuildServiceProvider();
     }
 
-    public Task RunAsync()
+    public async Task RunAsync()
     {
-        var service = Provider.GetService<IMessageHandlerService>();
+        var service = Provider.GetService<ILoggerService>();
         if (service != null)
         {
-            service.LogMessage(new FileLogger.Model.LogMessage
-            {
-                Action = "Test-Send",
-                LogType = LogType.Information,
-                Message = JsonSerializer.Serialize(new { a = 1, b = 3 }),
-                Service = "Test",
-                Version = "1.2"
-            });
+            await service.StartConsumeLogs();
+            service.Dispose();
         }
-        return Task.CompletedTask;
     }
 }
