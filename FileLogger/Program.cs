@@ -1,7 +1,9 @@
 ﻿public class Program
 {
-    private static void Main(string[] args)
+    private async static Task Main(string[] args)
     {
         var Startup = new Startup();
+        Startup.BuildServices();
+        await Startup.RunAsync();
     }
 }
