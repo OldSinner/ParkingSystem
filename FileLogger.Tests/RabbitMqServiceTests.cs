@@ -21,5 +21,6 @@ namespace FileLogger.Tests
             var model = service!.CreateChannel();
             model.Should().NotBeNull();
         }
+
     }
 }
