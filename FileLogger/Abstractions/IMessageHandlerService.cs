@@ -1,7 +1,9 @@
+using FileLogger.Model;
+
 namespace FileLogger.Abstractions
 {
     public interface IMessageHandlerService
     {
-        void SendMessage();
+        void LogMessage(LogMessage message);
     }
 }

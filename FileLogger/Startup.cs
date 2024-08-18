@@ -3,6 +3,7 @@ using FileLogger.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Text.Json;
 
 public class Startup
 {
@@ -27,7 +28,14 @@ public class Startup
         var service = Provider.GetService<IMessageHandlerService>();
         if (service != null)
         {
-            service.SendMessage();
+            service.LogMessage(new FileLogger.Model.LogMessage
+            {
+                Action = "Test-Send",
+                LogType = LogType.Information,
+                Message = JsonSerializer.Serialize(new { a = 1, b = 3 }),
+                Service = "Test",
+                Version = "1.2"
+            });
         }
         return Task.CompletedTask;
     }
