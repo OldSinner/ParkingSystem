@@ -3,6 +3,7 @@ using FileLogger.Model;
 using Serilog;
 using Serilog.Context;
 using Serilog.Core;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace FileLogger.Services
@@ -30,8 +31,10 @@ namespace FileLogger.Services
             logger.Dispose();
         }
 
-        public void LogFileLoggerMessage(LogType type, string message, string method)
+        public void LogFileLoggerMessage(LogType type, string message)
         {
+            StackTrace stackTrace = new StackTrace();
+            var method = stackTrace?.GetFrame(1)?.GetMethod()?.Name ?? "Not Deterimated";
             var name = Assembly.GetExecutingAssembly().GetName();
             var log = new LogMessage()
             {

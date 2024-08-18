@@ -15,7 +15,7 @@ namespace FileLogger.Services
         }
         public IConnection CreateChannel()
         {
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connecting to Mq", nameof(CreateChannel));
+            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connecting to Mq");
             ConnectionFactory connection = new ConnectionFactory
             {
                 UserName = configuration.GetSection("mqUsername").Value,
@@ -25,7 +25,7 @@ namespace FileLogger.Services
             };
             connection.DispatchConsumersAsync = true;
             var channel = connection.CreateConnection();
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connection Created", nameof(CreateChannel));
+            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connection Created");
             return channel;
         }
     }
