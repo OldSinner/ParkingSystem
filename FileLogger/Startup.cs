@@ -3,6 +3,7 @@ using FileLogger.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Core;
 using System.Text.Json;
 
 public class Startup
@@ -21,9 +22,9 @@ public class Startup
         services.AddSingleton<IMessageHandlerService, MessageHandlerService>();
         services.AddSingleton<IRabbitMqService, RabbitMqService>();
         services.AddSingleton<ILoggerService, LoggerService>();
-        services.AddSingleton(new LoggerConfiguration()
+        services.AddSingleton<Logger>(new LoggerConfiguration()
             .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: config.GetSection("LogOutputFormat").Value ?? string.Empty)
+            .WriteTo.Console(outputTemplate: config.GetSection("LogOutputFormat").Value ?? string.Empty).CreateLogger()
         );
         Provider = services.BuildServiceProvider();
     }
@@ -33,7 +34,9 @@ public class Startup
         var service = Provider.GetService<ILoggerService>();
         if (service != null)
         {
-            await service.StartConsumeLogs();
+            var cts = new CancellationTokenSource();
+            var token = cts.Token;
+            await service.StartConsumeLogs(token);
             service.Dispose();
         }
     }

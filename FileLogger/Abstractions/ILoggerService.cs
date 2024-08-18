@@ -2,6 +2,6 @@
 {
     public interface ILoggerService : IDisposable
     {
-        Task StartConsumeLogs();
+        Task StartConsumeLogs(CancellationToken token);
     }
 }

@@ -6,13 +6,16 @@ namespace FileLogger.Services
     public class RabbitMqService : IRabbitMqService
     {
         private readonly IConfiguration configuration;
+        private readonly IMessageHandlerService messageHandlerService;
 
-        public RabbitMqService(IConfiguration configuration)
+        public RabbitMqService(IConfiguration configuration, IMessageHandlerService messageHandlerService)
         {
             this.configuration = configuration;
+            this.messageHandlerService = messageHandlerService;
         }
         public IConnection CreateChannel()
         {
+            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connecting to Mq", nameof(CreateChannel));
             ConnectionFactory connection = new ConnectionFactory
             {
                 UserName = configuration.GetSection("mqUsername").Value,
@@ -22,6 +25,7 @@ namespace FileLogger.Services
             };
             connection.DispatchConsumersAsync = true;
             var channel = connection.CreateConnection();
+            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connection Created", nameof(CreateChannel));
             return channel;
         }
     }

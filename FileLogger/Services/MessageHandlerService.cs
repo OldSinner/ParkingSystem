@@ -3,21 +3,20 @@ using FileLogger.Model;
 using Serilog;
 using Serilog.Context;
 using Serilog.Core;
+using System.Reflection;
 
 namespace FileLogger.Services
 {
     class MessageHandlerService : IMessageHandlerService
     {
-        private readonly LoggerConfiguration loggerConfiguration;
+        private readonly Logger logger;
 
-        public MessageHandlerService(LoggerConfiguration loggerConfiguration)
+        public MessageHandlerService(Logger logger)
         {
-            this.loggerConfiguration = loggerConfiguration;
+            this.logger = logger;
         }
         public void LogMessage(LogMessage message)
         {
-            var logger = loggerConfiguration.CreateLogger();
-            logger.Information("No contextual properties");
             using (LogContext.PushProperty("Service", message.Service))
             {
                 using (LogContext.PushProperty("Version", message.Version))
@@ -28,6 +27,21 @@ namespace FileLogger.Services
                     }
                 }
             }
+            logger.Dispose();
+        }
+
+        public void LogFileLoggerMessage(LogType type, string message, string method)
+        {
+            var name = Assembly.GetExecutingAssembly().GetName();
+            var log = new LogMessage()
+            {
+                LogType = type,
+                Message = message,
+                Action = method,
+                Service = name.Name ?? "ServiceNotDetected",
+                Version = name.Version?.ToString() ?? "0.0.0."
+            };
+            LogMessage(log);
         }
 
         private static void Send(LogMessage message, Logger logger)
