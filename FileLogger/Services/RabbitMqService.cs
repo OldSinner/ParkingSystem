@@ -23,7 +23,8 @@ namespace FileLogger.Services
                 HostName = configuration.GetSection("mqUrl").Value,
                 DispatchConsumersAsync = true
             };
-            connection.DispatchConsumersAsync = true;
+            // Remove this line as it's redundant
+            // connection.DispatchConsumersAsync = true;
             var channel = connection.CreateConnection();
             messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connection Created");
             return channel;
