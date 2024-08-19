@@ -15,6 +15,7 @@ class Reader:
         # Models
         self.car_model = YOLO(self.config.car_detector_model)
         self.license_plate = YOLO(self.config.license_plate_model)
+        self.Logger = logger
         # Reader
         self.reader = easyocr.Reader(["en"], gpu=True)
         # Position
@@ -36,7 +37,6 @@ class Reader:
             return (False, detections_)
 
     def Clean(self) -> None:
-        self.Logger.LogInfo("Clean", "Resetting Reader")
         self.actual_car = (-1, -1, -1, -1, -1)
         self.actual_lp = (-1, -1, -1, -1, -1, -1)
 
@@ -63,7 +63,9 @@ class Reader:
 
     # TODO Rename this here and in `FindPlate`
     def pick_best_lp(self, plate, cars):
-        self.Logger.LogInfo("FindPlate", f"Picking best lp from {LP_READING_TRY} tries")
+        self.Logger.LogInfo(
+            "Reader.FindPlate", f"Picking best lp from {LP_READING_TRY} tries"
+        )
         counter = Counter(self.detected_lp)
         self.PickCar(plate, cars)
         lp = counter.most_common(1)[0][0]

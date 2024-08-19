@@ -23,9 +23,11 @@ class Detector:
         self.frame_without_car = 0
         # ---------------------  Communication  --------------------
         self.Logger: LoggerClass = Logger
-        self.BrokerSender: BrokerSender = BrokerSender(self, config.MQConfiguration)
+        self.BrokerSender: BrokerSender = BrokerSender(
+            self, config.MQConfiguration, Logger
+        )
         self.BrokerReceiver: BrokerReceiver = BrokerReceiver(
-            self, config.MQConfiguration
+            self, config.MQConfiguration, Logger
         )
         self.RunBrokers()
         # ---------------------  Camera  --------------------
@@ -33,11 +35,12 @@ class Detector:
             self.get_camera_cap()
         else:
             self.Logger.LogInfo(
-                "get_camera_cap", f"Using a image from {self.config.cam_photo_path}"
+                "Detector.get_camera_cap",
+                f"Using a image from {self.config.cam_photo_path}",
             )
 
     def get_camera_cap(self):
-        self.Logger.LogInfo("get_camera_cap", 'Catching Video Capture "1"')
+        self.Logger.LogInfo("Detector.get_camera_cap", 'Catching Video Capture "1"')
         try:
             cap = cv2.VideoCapture(1)
             cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
@@ -45,19 +48,21 @@ class Detector:
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
             self.cap = cap
         except Exception as ex:
-            self.Logger.LogErr("get_camera_cap", ex)
+            self.Logger.LogErr("Detector.get_camera_cap", ex)
+        return self
+
+    def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.Logger.LogInfo("Detector__exit__", "Closing Detector")
         self.BrokerReceiver.Dispose()
 
     def RunBrokers(self):
-        self.Logger.LogInfo("RunBrokers", "Starting BrokerReceiver")
+        self.Logger.LogInfo("Detector.RunBrokers", "Starting BrokerReceiver")
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
-        self.Logger.LogInfo("Run", "Detector ON")
+        self.Logger.LogInfo("Detector.Run", "Detector ON")
         try:
             ret = True
             while ret:
@@ -102,13 +107,13 @@ class Detector:
             self.frame_without_car = 0
             res, text = self.reader.FindPlate(frame, detections)
             if res == -1:
-                self.Logger.LogInfo("ScanLP", f'Founded LP: "{text}"')
+                self.Logger.LogInfo("Detector.ScanLP", f'Founded LP: "{text}"')
                 self.ProcessCarAndLP(frame, text)
         else:
             self.frame_without_car += 1
             if self.frame_without_car > FRAME_WITHOUT_CAR:
                 self.Logger.LogWarn(
-                    "ScanLP",
+                    "Detector.ScanLP",
                     f"Lost car in sight for longer than {FRAME_WITHOUT_CAR} frames",
                 )
                 self.reader.detected_lp = []
@@ -122,7 +127,7 @@ class Detector:
         self.stats.ActualLp = text
         self.handle_save(frame, text, self.reader.actual_lp, self.reader.actual_car)
 
-        self.Logger.LogInfo("ProcessCarAndLP", "Sending open signal")
+        self.Logger.LogInfo("Detector.ProcessCarAndLP", "Sending open signal")
         self.BrokerSender.SendOpenGateSignal()
 
     def ScanCar(self, frame):
@@ -130,7 +135,8 @@ class Detector:
         self.stats.CarCount = len(detections)
         if detected:
             self.Logger.LogInfo(
-                "ScanCar", f"Detected {len(detections)} cars, starting to process.."
+                "Detector.ScanCar",
+                f"Detected {len(detections)} cars, starting to process..",
             )
             self.state = DetectorState.PROCESSING_CAR
             return (detected, detections)
@@ -144,14 +150,14 @@ class Detector:
         try:
             self.save_files(lp_number, car, lp, frame)
         except Exception as ex:
-            self.Logger.LogErr("SaveFiles", ex)
+            self.Logger.LogErr("Detector.SaveFiles", ex)
 
     def save_files(self, lp_number, car, lp, frame):
         current_date = datetime.now().strftime("%m%d%YT%H%M%S")
         folder_name = f"{lp_number}_{current_date}"
         path = os.path.join(self.config.path_to_file, folder_name)
         os.makedirs(path, exist_ok=True)
-        self.Logger.LogInfo("SaveFiles", f"Prepared dir for photos {path}")
+        self.Logger.LogInfo("Detector.SaveFiles", f"Prepared dir for photos {path}")
         #
         filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
         filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
@@ -161,9 +167,9 @@ class Detector:
         #
         lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
         car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
-        self.Logger.LogInfo("SaveFiles", f"Saving car photos in {filepath_c}")
+        self.Logger.LogInfo("Detector.SaveFiles", f"Saving car photos in {filepath_c}")
         cv2.imwrite(filepath_c, car_Crop)
-        self.Logger.LogInfo("SaveFiles", f"Saving lp photos in {filepath_c}")
+        self.Logger.LogInfo("Detector.SaveFiles", f"Saving lp photos in {filepath_c}")
         cv2.imwrite(filepath_lp, lp_crop)
 
 
