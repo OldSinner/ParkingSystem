@@ -7,7 +7,7 @@ class Configuration:
     def __init__(self) -> None:
         # Read Configuration
         config = configparser.ConfigParser()
-        config.read("../ConfigurationFiles/DetectorConfig.ini")
+        config.read("./DetectorConfig.ini")
         # Build Reader tab
         reader_dict = {
             "car_detector_model": config.get("Reader", "car_detector_model"),
@@ -38,11 +38,11 @@ class Configuration:
         }
 
         # Build MQ Configuration:
-
         mq_dict = {
             "url": config.get("MQ", "url"),
             "gate_action_queue": config.get("MQ", "gate_action_queue"),
             "gate_event_queue": config.get("MQ", "gate_event_queue"),
+            "logger_exchange": config.get("MQ", "logger_exchange"),
         }
 
         # Build Object for Segments
@@ -86,3 +86,4 @@ class MQConfiguration:
         self.url = mq_dict.get("url")
         self.gate_action_queue = mq_dict.get("gate_action_queue")
         self.gate_event_queue = mq_dict.get("gate_event_queue")
+        self.logger_exchange = mq_dict.get("logger_exchange")
