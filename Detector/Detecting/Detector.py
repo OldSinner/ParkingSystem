@@ -1,15 +1,17 @@
-from Communication.Logger import LoggerClass
-from Detecting.Reader import Reader
-from Helpers.cv2short import *
-from Detecting.DetectorEnums import *
-from Helpers.const import *
 from datetime import datetime
-from Communication.Broker import *
-from Configuration.Configuration import *
-import cv2
 import os
 import threading
-import matplotlib.pyplot as plt
+import cv2
+
+from Communication.BrokerSender import BrokerSender
+from Communication.Logger import LoggerClass
+from Communication.Broker import *
+from Detecting.DetectorStats import DetectorStats
+from Detecting.Reader import Reader
+from Detecting.DetectorEnums import *
+from Helpers.cv2short import *
+from Helpers.const import *
+from Configuration.Configuration import *
 
 
 class Detector:
@@ -18,10 +20,12 @@ class Detector:
         self.config: DetectorConfiguration = config.DetectorConfig
         self.state: DetectorState = DetectorState.SCANNING_FOR_CAR
         self.stats: DetectorStats = DetectorStats()
-        # ---------------------  Reading  --------------------
+
+        # Reading
         self.reader: Reader = Reader(config, Logger)
         self.frame_without_car = 0
-        # ---------------------  Communication  --------------------
+
+        # Communication
         self.Logger: LoggerClass = Logger
         self.BrokerSender: BrokerSender = BrokerSender(
             self, config.MQConfiguration, Logger
@@ -30,7 +34,8 @@ class Detector:
             self, config.MQConfiguration, Logger
         )
         self.RunBrokers()
-        # ---------------------  Camera  --------------------
+
+        # Camera
         if not self.config.use_photo:
             self.get_camera_cap()
         else:
@@ -64,20 +69,16 @@ class Detector:
     def Run(self):
         self.Logger.LogInfo("Detector.Run", "Detector ON")
         try:
-            ret = True
-            while ret:
+            while True:
                 ret, frame = self.get_frame()
-                match self.state:
-                    case DetectorState.SCANNING_FOR_CAR:
-                        self.ScanCar(frame)
-                    case DetectorState.PROCESSING_CAR:
-                        self.ScanLP(frame)
-                    case DetectorState.WAITING_FOR_GATE_CLOSE:
-                        pass
-                    case DetectorState.WAITING_FOR_GATE_OPEN:
-                        pass
-                self.stats.DetectorState = self.state
+                if not ret:
+                    break
+                if self.state == DetectorState.SCANNING_FOR_CAR:
+                    self.ScanCar(frame)
+                elif self.state == DetectorState.PROCESSING_CAR:
+                    self.ScanLP(frame)
 
+                self.stats.DetectorState = self.state
                 self.DrawDetectionRegions(frame)
                 cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
                 self.reader.Clean()
@@ -85,7 +86,7 @@ class Detector:
                 if key == 27:
                     break
         except Exception as ex:
-            self.Logger.LogErr("Run", ex)
+            self.Logger.LogErr("Detector.Run", ex)
 
     def get_frame(self):
         if self.config.use_photo:
@@ -103,12 +104,13 @@ class Detector:
 
     def ScanLP(self, frame):
         detected, detections = self.ScanCar(frame)
-        if detected:
+        if not detected:
             self.frame_without_car = 0
             res, text = self.reader.FindPlate(frame, detections)
             if res == -1:
                 self.Logger.LogInfo("Detector.ScanLP", f'Founded LP: "{text}"')
                 self.ProcessCarAndLP(frame, text)
+            return
         else:
             self.frame_without_car += 1
             if self.frame_without_car > FRAME_WITHOUT_CAR:
@@ -171,20 +173,3 @@ class Detector:
         cv2.imwrite(filepath_c, car_Crop)
         self.Logger.LogInfo("Detector.SaveFiles", f"Saving lp photos in {filepath_c}")
         cv2.imwrite(filepath_lp, lp_crop)
-
-
-class DetectorStats:
-
-    def __init__(self) -> None:
-        self.CarCount = 0
-        self.DetectorState = DetectorState.SCANNING_FOR_CAR
-        self.ActualLp = ""
-        self.GateStatus = GateState.CLOSED
-
-    def __repr__(self) -> str:
-        return (
-            f"DetectorStats(CarCount={self.CarCount}, "
-            f"DetectorState={self.DetectorState}, "
-            f"ActualLp='{self.ActualLp}', "
-            f"GateStatus={self.GateStatus})"
-        )

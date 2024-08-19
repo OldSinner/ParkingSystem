@@ -97,26 +97,9 @@ class LogMessage:
 
     def to_dict(self):
         return {
-            "LogType": self.LogType,
-            "Action": self.Action,
-            "Message": self.Message,
-            "Service": self.Service,
-            "Version": self.Version,
+            attr: getattr(self, attr)
+            for attr in ["LogType", "Action", "Message", "Service", "Version"]
         }
 
     def to_json(self):
         return json.dumps(self.to_dict())
-
-
-# namespace Logger.Model
-# {
-#     public class LogMessage
-#     {
-#         public LogType LogType { get; set; }
-#         public string Message { get; set; } = string.Empty;
-#         public string Action { get; set; } = string.Empty;
-#         public string Version { get; set; } = "0.0.0";
-#         public string Service { get; set; } = string.Empty;
-#     }
-
-# }
