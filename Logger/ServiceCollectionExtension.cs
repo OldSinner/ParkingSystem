@@ -1,17 +1,16 @@
-﻿using FileLogger.Abstractions;
-using FileLogger.Services;
-using Serilog.Core;
+﻿using Logger.Abstractions;
+using Logger.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtension
     {
-        public static IServiceCollection AddFileLoggerServices(this IServiceCollection services, Logger logger)
+        public static IServiceCollection AddLoggerServices(this IServiceCollection services, Serilog.Core.Logger logger)
         {
             services.AddSingleton<IMessageHandlerService, MessageHandlerService>();
             services.AddSingleton<IRabbitMqService, RabbitMqService>();
             services.AddSingleton<ILoggerService, LoggerService>();
-            services.AddSingleton<Logger>(logger);
+            services.AddSingleton<Serilog.Core.Logger>(logger);
             return services;
         }
     }

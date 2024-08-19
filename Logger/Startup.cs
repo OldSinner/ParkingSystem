@@ -1,5 +1,5 @@
-using FileLogger.Abstractions;
-using FileLogger.Services;
+using Logger.Abstractions;
+using Logger.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -22,7 +22,7 @@ public class Startup
 
         ServiceCollection services = new();
         services.AddSingleton<IConfiguration>(config);
-        services.AddFileLoggerServices(logger);
+        services.AddLoggerServices(logger);
         Provider = services.BuildServiceProvider();
     }
 
@@ -30,7 +30,7 @@ public class Startup
     {
         var logger = Provider.GetService<IMessageHandlerService>()!;
 
-        logger.LogFileLoggerMessage(LogType.Information, "Starting FileLogger...");
+        logger.LogLoggerMessage(LogType.Information, "Starting Logger...");
         try
         {
             var service = Provider.GetService<ILoggerService>();
@@ -41,12 +41,12 @@ public class Startup
                 await service.StartConsumeLogs(token);
                 service.Dispose();
             }
-            logger.LogFileLoggerMessage(LogType.Information,"Closing FileLogger...");  
+            logger.LogLoggerMessage(LogType.Information, "Closing Logger...");
         }
         catch (Exception ex)
         {
-            logger.LogFileLoggerMessage(LogType.Error,ex.Message);
+            logger.LogLoggerMessage(LogType.Error, ex.Message);
         }
-       
+
     }
 }

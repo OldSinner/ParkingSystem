@@ -1,5 +1,5 @@
-using FileLogger.Abstractions;
-using FileLogger.Model;
+using Logger.Abstractions;
+using Logger.Model;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Channels;
 
-namespace FileLogger.Services
+namespace Logger.Services
 {
     class LoggerService : ILoggerService
     {
@@ -17,7 +17,7 @@ namespace FileLogger.Services
         private IConnection connection;
         private IModel model;
         private string queueName = "User";
-        public LoggerService(IMessageHandlerService messageHandlerService,IRabbitMqService rabbitMqService, IConfiguration configuration)
+        public LoggerService(IMessageHandlerService messageHandlerService, IRabbitMqService rabbitMqService, IConfiguration configuration)
         {
             this.messageHandlerService = messageHandlerService ?? throw new ArgumentNullException(nameof(messageHandlerService));
             this.rabbitMqService = rabbitMqService;
@@ -31,10 +31,10 @@ namespace FileLogger.Services
             connection = rabbitMqService.CreateChannel();
             model = connection.CreateModel();
 
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, $"Create Exchange \"{exchangeName}\"");
+            messageHandlerService.LogLoggerMessage(LogType.Information, $"Create Exchange \"{exchangeName}\"");
             model.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
 
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, $"Binding Queue");
+            messageHandlerService.LogLoggerMessage(LogType.Information, $"Binding Queue");
             queueName = model.QueueDeclare().QueueName;
             model.QueueBind(queue: queueName,
                       exchange: exchangeName,
@@ -43,7 +43,7 @@ namespace FileLogger.Services
 
         public async Task StartConsumeLogs(CancellationToken token)
         {
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Start Consume Logs");
+            messageHandlerService.LogLoggerMessage(LogType.Information, "Start Consume Logs");
             var consumer = new AsyncEventingBasicConsumer(model);
             consumer.Received += async (ch, ea) =>
             {
@@ -61,7 +61,8 @@ namespace FileLogger.Services
                         throw new InvalidOperationException("Cannot deserialize");
                     }
                 }
-                catch(Exception ex) {
+                catch (Exception ex)
+                {
                     LogErrorEmptyOrCannotParse(ex);
                 }
 
@@ -70,11 +71,11 @@ namespace FileLogger.Services
             model.BasicConsume(queueName, false, consumer);
             await Task.Run(() => token.WaitHandle.WaitOne());
 
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Stoping Consume Logs");
+            messageHandlerService.LogLoggerMessage(LogType.Information, "Stoping Consume Logs");
             await Task.CompletedTask;
         }
-        public void LogErrorEmptyOrCannotParse(Exception ex) => messageHandlerService.LogFileLoggerMessage(LogType.Error, ex.Message);
-        
+        public void LogErrorEmptyOrCannotParse(Exception ex) => messageHandlerService.LogLoggerMessage(LogType.Error, ex.Message);
+
         public void Dispose()
         {
             if (model.IsOpen)

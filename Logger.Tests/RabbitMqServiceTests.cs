@@ -1,8 +1,8 @@
-﻿using FileLogger.Abstractions;
+﻿using Logger.Abstractions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FileLogger.Tests
+namespace Logger.Tests
 {
     public class RabbitMqServiceTests
     {

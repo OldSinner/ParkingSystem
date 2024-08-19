@@ -1,9 +1,9 @@
-﻿using FileLogger.Abstractions;
-using FileLogger.Model;
+﻿using Logger.Abstractions;
+using Logger.Model;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FileLogger.Tests
+namespace Logger.Tests
 {
     public class MessageHandlerServiceTests
     {
@@ -14,12 +14,12 @@ namespace FileLogger.Tests
         }
 
         [Fact]
-        public void LogFileLoggerMessageTest()
+        public void LogLoggerMessageTest()
         {
             var service = _serviceProvider.GetService<IMessageHandlerService>();
             service.Should().NotBeNull();
 
-            var action = () => { service!.LogFileLoggerMessage(LogType.Information, "UNIT-TEST"); };
+            var action = () => { service!.LogLoggerMessage(LogType.Information, "UNIT-TEST"); };
             action.Should().NotThrow();
         }
 

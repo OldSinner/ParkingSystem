@@ -1,11 +1,11 @@
 ﻿
-using FileLogger.Abstractions;
+using Logger.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
 
-namespace FileLogger.Tests
+namespace Logger.Tests
 {
     public static class TestHelper
     {
@@ -22,7 +22,7 @@ namespace FileLogger.Tests
 
             ServiceCollection services = new();
             services.AddSingleton<IConfiguration>(config);
-            services.AddFileLoggerServices(logger);
+            services.AddLoggerServices(logger);
             return services.BuildServiceProvider();
         }
     }

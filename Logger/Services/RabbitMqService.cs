@@ -1,7 +1,7 @@
-﻿using FileLogger.Abstractions;
+﻿using Logger.Abstractions;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
-namespace FileLogger.Services
+namespace Logger.Services
 {
     public class RabbitMqService : IRabbitMqService
     {
@@ -15,7 +15,7 @@ namespace FileLogger.Services
         }
         public IConnection CreateChannel()
         {
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connecting to Mq");
+            messageHandlerService.LogLoggerMessage(LogType.Information, "Connecting to Mq");
             ConnectionFactory connection = new ConnectionFactory
             {
                 UserName = configuration.GetSection("mqUsername").Value,
@@ -26,7 +26,7 @@ namespace FileLogger.Services
             // Remove this line as it's redundant
             // connection.DispatchConsumersAsync = true;
             var channel = connection.CreateConnection();
-            messageHandlerService.LogFileLoggerMessage(LogType.Information, "Connection Created");
+            messageHandlerService.LogLoggerMessage(LogType.Information, "Connection Created");
             return channel;
         }
     }

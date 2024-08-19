@@ -1,4 +1,4 @@
-namespace FileLogger.Model
+namespace Logger.Model
 {
     public class LogMessage
     {

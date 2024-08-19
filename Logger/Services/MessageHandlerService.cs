@@ -1,18 +1,18 @@
-using FileLogger.Abstractions;
-using FileLogger.Model;
+using Logger.Abstractions;
+using Logger.Model;
 using Serilog;
 using Serilog.Context;
 using Serilog.Core;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace FileLogger.Services
+namespace Logger.Services
 {
     class MessageHandlerService : IMessageHandlerService
     {
-        private readonly Logger logger;
+        private readonly Serilog.Core.Logger logger;
 
-        public MessageHandlerService(Logger logger)
+        public MessageHandlerService(Serilog.Core.Logger logger)
         {
             this.logger = logger;
         }
@@ -31,7 +31,7 @@ namespace FileLogger.Services
             logger.Dispose();
         }
 
-        public void LogFileLoggerMessage(LogType type, string message)
+        public void LogLoggerMessage(LogType type, string message)
         {
             StackTrace stackTrace = new StackTrace();
             var method = stackTrace?.GetFrame(1)?.GetMethod()?.Name ?? "Not Deterimated";
@@ -47,7 +47,7 @@ namespace FileLogger.Services
             LogMessage(log);
         }
 
-        private static void Send(LogMessage message, Logger logger)
+        private static void Send(LogMessage message, Serilog.Core.Logger logger)
         {
             switch (message.LogType)
             {

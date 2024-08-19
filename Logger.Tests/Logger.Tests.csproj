@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileLogger\FileLogger.csproj" />
+    <ProjectReference Include="..\Logger\Logger.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,12 +26,12 @@
   </ItemGroup>
 	<ItemGroup>
 		<!-- Copy appsettings.json -->
-		<None Update="..\FileLogger\appsettings.json">
+		<None Update="..\Logger\appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 
 		<!-- Copy appsettings.development.json -->
-		<None Update="..\FileLogger\appsettings.development.json">
+		<None Update="..\Logger\appsettings.development.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace FileLogger.Abstractions
+﻿namespace Logger.Abstractions
 {
     public interface ILoggerService : IDisposable
     {

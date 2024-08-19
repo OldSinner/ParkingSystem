@@ -1,6 +1,6 @@
 ﻿using RabbitMQ.Client;
 
-namespace FileLogger.Abstractions
+namespace Logger.Abstractions
 {
     public interface IRabbitMqService
     {
