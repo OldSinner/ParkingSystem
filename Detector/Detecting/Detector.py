@@ -1,3 +1,4 @@
+from Communication.Logger import LoggerClass
 from Detecting.Reader import Reader
 from Helpers.cv2short import *
 from Detecting.DetectorEnums import *
@@ -12,9 +13,8 @@ import matplotlib.pyplot as plt
 
 
 class Detector:
-    def __init__(self):
+    def __init__(self, Logger, config: Configuration):
         # Config
-        config = Configuration()
         self.config: DetectorConfiguration = config.DetectorConfig
         self.state: DetectorState = DetectorState.SCANNING_FOR_CAR
         self.stats: DetectorStats = DetectorStats()
@@ -22,6 +22,7 @@ class Detector:
         self.reader: Reader = Reader(config)
         self.frame_without_car = 0
         # ---------------------  Communication  --------------------
+        self.Logger: LoggerClass = Logger
         self.BrokerSender: BrokerSender = BrokerSender(self, config.MQConfiguration)
         self.BrokerReceiver: BrokerReceiver = BrokerReceiver(
             self, config.MQConfiguration
@@ -29,7 +30,7 @@ class Detector:
         self.RunBrokers()
         # ---------------------  Camera  --------------------
         if not self.config.use_photo:
-            cap = self.get_video_capture()
+            cap = cv2.VideoCapture(1)
             cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
@@ -42,6 +43,7 @@ class Detector:
         self.BrokerReceiver.Dispose()
 
     def RunBrokers(self):
+        self.Logger.LogInfo("RunBrokers", "Starting BrokerReceiver")
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
@@ -61,11 +63,10 @@ class Detector:
             self.stats.DetectorState = self.state
 
             self.DrawDetectionRegions(frame)
-            # cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
+            cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
             plt.imshow(frame)
             self.reader.Clean()
-            print(self.stats)
-            key = cv2.waitKey(60)
+            key = cv2.waitKey(120)
             if key == 27:
                 break
 
