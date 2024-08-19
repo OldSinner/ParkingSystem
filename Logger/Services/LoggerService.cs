@@ -3,10 +3,7 @@ using Logger.Model;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Data.Common;
-using System.Reflection;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace Logger.Services
 {
@@ -45,35 +42,39 @@ namespace Logger.Services
         {
             messageHandlerService.LogLoggerMessage(LogType.Information, "Start Consume Logs");
             var consumer = new AsyncEventingBasicConsumer(model);
-            consumer.Received += async (ch, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var text = System.Text.Encoding.UTF8.GetString(body);
-                try
-                {
-                    var log = JsonSerializer.Deserialize<LogMessage>(text);
-                    if (log != null)
-                    {
-                        messageHandlerService.LogMessage(log);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Cannot deserialize");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogErrorEmptyOrCannotParse(ex);
-                }
-
-                await Task.CompletedTask;
-            };
+            consumer.Received += ReceivedLog;
             model.BasicConsume(queueName, false, consumer);
             await Task.Run(() => token.WaitHandle.WaitOne());
 
             messageHandlerService.LogLoggerMessage(LogType.Information, "Stoping Consume Logs");
             await Task.CompletedTask;
         }
+
+        private async Task ReceivedLog(object ch, BasicDeliverEventArgs ea)
+        {
+            var body = ea.Body.ToArray();
+            var text = System.Text.Encoding.UTF8.GetString(body);
+            try
+            {
+                var log = JsonSerializer.Deserialize<LogMessage>(text);
+                if (log != null)
+                {
+                    messageHandlerService.LogMessage(log);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Cannot deserialize");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrorEmptyOrCannotParse(ex);
+            }
+
+            await Task.CompletedTask;
+
+        }
+
         public void LogErrorEmptyOrCannotParse(Exception ex) => messageHandlerService.LogLoggerMessage(LogType.Error, ex.Message);
 
         public void Dispose()
