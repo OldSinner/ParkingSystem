@@ -30,16 +30,26 @@ class Detector:
         self.RunBrokers()
         # ---------------------  Camera  --------------------
         if not self.config.use_photo:
+            self.get_camera_cap()
+        else:
+            self.Logger.LogInfo(
+                "get_camera_cap", f"Using a image from {self.config.cam_photo_path}"
+            )
+
+    def get_camera_cap(self):
+        self.Logger.LogInfo("get_camera_cap", 'Catching Video Capture "1"')
+        try:
             cap = cv2.VideoCapture(1)
             cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
             self.cap = cap
-
-    def __enter__(self):
+        except Exception as ex:
+            self.Logger.LogErr("get_camera_cap", ex)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        self.Logger.LogInfo("Detector__exit__", "Closing Detector")
         self.BrokerReceiver.Dispose()
 
     def RunBrokers(self):
@@ -47,28 +57,30 @@ class Detector:
         threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
-        # Main Loop
-        ret = True
-        while ret:
-            ret, frame = self.get_frame()
-            match self.state:
-                case DetectorState.SCANNING_FOR_CAR:
-                    self.ScanCar(frame)
-                case DetectorState.PROCESSING_CAR:
-                    self.ScanLP(frame)
-                case DetectorState.WAITING_FOR_GATE_CLOSE:
-                    pass
-                case DetectorState.WAITING_FOR_GATE_OPEN:
-                    pass
-            self.stats.DetectorState = self.state
+        self.Logger.LogInfo("Run", "Detector ON")
+        try:
+            ret = True
+            while ret:
+                ret, frame = self.get_frame()
+                match self.state:
+                    case DetectorState.SCANNING_FOR_CAR:
+                        self.ScanCar(frame)
+                    case DetectorState.PROCESSING_CAR:
+                        self.ScanLP(frame)
+                    case DetectorState.WAITING_FOR_GATE_CLOSE:
+                        pass
+                    case DetectorState.WAITING_FOR_GATE_OPEN:
+                        pass
+                self.stats.DetectorState = self.state
 
-            self.DrawDetectionRegions(frame)
-            cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
-            plt.imshow(frame)
-            self.reader.Clean()
-            key = cv2.waitKey(120)
-            if key == 27:
-                break
+                self.DrawDetectionRegions(frame)
+                cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
+                self.reader.Clean()
+                key = cv2.waitKey(120)
+                if key == 27:
+                    break
+        except Exception as ex:
+            self.Logger.LogErr("Run", ex)
 
     def get_frame(self):
         if self.config.use_photo:
@@ -90,10 +102,16 @@ class Detector:
             self.frame_without_car = 0
             res, text = self.reader.FindPlate(frame, detections)
             if res == -1:
+                self.Logger.LogInfo("ScanLP", f'Founded LP: "{text}"')
                 self.ProcessCarAndLP(frame, text)
         else:
             self.frame_without_car += 1
             if self.frame_without_car > FRAME_WITHOUT_CAR:
+                self.Logger.LogWarn(
+                    "ScanLP",
+                    f"Lost car in sight for longer than {FRAME_WITHOUT_CAR} frames",
+                )
+                self.reader.detected_lp = []
                 self.state = DetectorState.SCANNING_FOR_CAR
 
     def ProcessCarAndLP(self, frame, text):
@@ -101,39 +119,52 @@ class Detector:
             self.state = DetectorState.WAITING_FOR_GATE_CLOSE
         else:
             self.state = DetectorState.WAITING_FOR_GATE_OPEN
-
         self.stats.ActualLp = text
-        self.SaveFiles(frame, text, self.reader.actual_lp, self.reader.actual_car)
+        self.handle_save(frame, text, self.reader.actual_lp, self.reader.actual_car)
+
+        self.Logger.LogInfo("ProcessCarAndLP", "Sending open signal")
+        self.BrokerSender.SendOpenGateSignal()
 
     def ScanCar(self, frame):
         detected, detections = self.reader.ScanForCar(frame)
         self.stats.CarCount = len(detections)
         if detected:
+            self.Logger.LogInfo(
+                "ScanCar", f"Detected {len(detections)} cars, starting to process.."
+            )
             self.state = DetectorState.PROCESSING_CAR
             return (detected, detections)
         else:
             return (False, [])
 
-    def SaveFiles(self, frame, lp_number, lp, car) -> None:
+    def handle_save(self, frame, lp_number, lp, car) -> None:
 
-        if self.config.save_to_file:
-            current_date = datetime.now().strftime("%m%d%YT%H%M%S")
-            folder_name = f"{lp_number}_{current_date}"
-            path = os.path.join(self.config.path_to_file, folder_name)
-            os.makedirs(path, exist_ok=True)
-            #
-            filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
-            filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
-            # TODO: Fix Car photo saving
-            cx1, cy1, cx2, cy2, _ = car
-            x1, y1, x2, y2, score, _ = lp
-            #
-            lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
-            car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
-            cv2.imwrite(filepath_c, car_Crop)
-            cv2.imwrite(filepath_lp, lp_crop)
+        if not self.config.save_to_file:
+            return
+        try:
+            self.save_files(lp_number, car, lp, frame)
+        except Exception as ex:
+            self.Logger.LogErr("SaveFiles", ex)
 
-        self.BrokerSender.SendOpenGateSignal()
+    def save_files(self, lp_number, car, lp, frame):
+        current_date = datetime.now().strftime("%m%d%YT%H%M%S")
+        folder_name = f"{lp_number}_{current_date}"
+        path = os.path.join(self.config.path_to_file, folder_name)
+        os.makedirs(path, exist_ok=True)
+        self.Logger.LogInfo("SaveFiles", f"Prepared dir for photos {path}")
+        #
+        filepath_c = os.path.join(path, f"Car_{lp_number}.jpg")
+        filepath_lp = os.path.join(path, f"LP_{lp_number}.jpg")
+        # TODO: Fix Car photo saving
+        cx1, cy1, cx2, cy2, _ = car
+        x1, y1, x2, y2, score, _ = lp
+        #
+        lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
+        car_Crop = frame[int(cy1) : int(cy2), int(cx1) : int(cx2), :]
+        self.Logger.LogInfo("SaveFiles", f"Saving car photos in {filepath_c}")
+        cv2.imwrite(filepath_c, car_Crop)
+        self.Logger.LogInfo("SaveFiles", f"Saving lp photos in {filepath_c}")
+        cv2.imwrite(filepath_lp, lp_crop)
 
 
 class DetectorStats:
