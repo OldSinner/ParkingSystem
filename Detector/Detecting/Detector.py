@@ -19,7 +19,7 @@ class Detector:
         self.state: DetectorState = DetectorState.SCANNING_FOR_CAR
         self.stats: DetectorStats = DetectorStats()
         # ---------------------  Reading  --------------------
-        self.reader: Reader = Reader(config)
+        self.reader: Reader = Reader(config, Logger)
         self.frame_without_car = 0
         # ---------------------  Communication  --------------------
         self.Logger: LoggerClass = Logger
