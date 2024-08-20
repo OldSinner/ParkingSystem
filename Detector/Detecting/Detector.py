@@ -11,7 +11,7 @@ from Detecting.Reader import Reader
 from Detecting.DetectorEnums import *
 from Helpers.cv2short import *
 from Helpers.const import *
-from Configuration.Configuration import *
+from CarDetector.src.CarDetector.Configuration import *
 
 
 class Detector:
