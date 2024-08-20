@@ -71,7 +71,7 @@ class ReaderConfiguration:
 
 
 class CV2Configuration:
-    def __init__(self, cv2_dict: dict[str, any]) -> None:
+    def __init__(self, cv2_dict: dict[str, any]) -> None: # type: ignore
         self.stat_color = cv2_dict.get("stat_color")
         self.picked_car = cv2_dict.get("picked_car")
         self.picked_lp = cv2_dict.get("picked_lp")
@@ -81,7 +81,7 @@ class CV2Configuration:
 
 
 class MQConfiguration:
-    def __init__(self, mq_dict: dict[str, any]) -> None:
+    def __init__(self, mq_dict: dict[str, any]) -> None: # type: ignore
         self.url = mq_dict.get("url")
         self.gate_action_queue = mq_dict.get("gate_action_queue")
         self.gate_event_queue = mq_dict.get("gate_event_queue")
