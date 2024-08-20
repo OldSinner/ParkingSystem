@@ -1,10 +1,6 @@
 
-    
 def main():
-    print("test")
-    
-    
-    
+    print("ok")
 if __name__ == "__main__":
     main()
     

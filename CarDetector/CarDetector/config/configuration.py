@@ -53,36 +53,36 @@ class Configuration:
 
 class DetectorConfiguration:
     def __init__(self, detector_dict) -> None:
-        self.use_photo = detector_dict["use_photo"]
-        self.cam_photo_path = detector_dict["cam_photo_path"]
-        self.cam_number = detector_dict["cam_number"]
-        self.cam_width = detector_dict["cam_width"]
-        self.cam_height = detector_dict["cam_height"]
+        self.use_photo : bool = detector_dict["use_photo"]
+        self.cam_photo_path : str = detector_dict["cam_photo_path"]
+        self.cam_number : int = detector_dict["cam_number"]
+        self.cam_width : int= detector_dict["cam_width"]
+        self.cam_height : int= detector_dict["cam_height"]
         #
-        self.path_to_file = detector_dict["path_to_file"]
-        self.save_to_file = detector_dict["save_to_file"]
+        self.path_to_file :str = detector_dict["path_to_file"]
+        self.save_to_file :bool = detector_dict["save_to_file"]
 
 
 class ReaderConfiguration:
     def __init__(self, yolo) -> None:
-        self.car_detector_model = yolo["car_detector_model"]
-        self.license_plate_model = yolo["license_plate_model"]
-        self.vehicles_ids = yolo["vehicles_ids"]
+        self.car_detector_model :str = yolo["car_detector_model"]
+        self.license_plate_model :str = yolo["license_plate_model"]
+        self.vehicles_ids :list[str]= yolo["vehicles_ids"]
 
 
 class CV2Configuration:
-    def __init__(self, cv2_dict: dict[str, any]) -> None: # type: ignore
-        self.stat_color = cv2_dict.get("stat_color")
-        self.picked_car = cv2_dict.get("picked_car")
-        self.picked_lp = cv2_dict.get("picked_lp")
-        self.car_color = cv2_dict.get("car_color")
-        self.car_thick = cv2_dict.get("car_thick")
-        self.stat_thick = cv2_dict.get("stat_thick")
+    def __init__(self, cv2_dict: dict[str, any]) -> None:
+        self.stat_color :tuple[int,int,int] = cv2_dict.get("stat_color")
+        self.picked_car :tuple[int,int,int] = cv2_dict.get("picked_car")
+        self.picked_lp :tuple[int,int,int] = cv2_dict.get("picked_lp")
+        self.car_color :tuple[int,int,int] = cv2_dict.get("car_color")
+        self.car_thick :int= cv2_dict.get("car_thick")
+        self.stat_thick :int= cv2_dict.get("stat_thick")
 
 
 class MQConfiguration:
-    def __init__(self, mq_dict: dict[str, any]) -> None: # type: ignore
-        self.url = mq_dict.get("url")
-        self.gate_action_queue = mq_dict.get("gate_action_queue")
-        self.gate_event_queue = mq_dict.get("gate_event_queue")
-        self.logger_exchange = mq_dict.get("logger_exchange")
+    def __init__(self, mq_dict: dict[str, any]) -> None: 
+        self.url : str = mq_dict.get("url")
+        self.gate_action_queue : str = mq_dict.get("gate_action_queue")
+        self.gate_event_queue : str = mq_dict.get("gate_event_queue")
+        self.logger_exchange : str = mq_dict.get("logger_exchange")

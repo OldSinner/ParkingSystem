@@ -1,3 +1,5 @@
+APP_NAME = "CarDetector"
+
 FRAME_WITHOUT_CAR = 10
 LP_READING_TRY = 10
 

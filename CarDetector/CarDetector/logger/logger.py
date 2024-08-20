@@ -1,9 +1,25 @@
+import json
 import traceback
+from CarDetector.config.const import APP_NAME
 import pika
-from enum import Enum
-from Configuration.Configuration import *
-from Communication.CommunicationModels import *
+from ..config import  MQConfiguration
+from CarDetector import __version__
+class LogMessage:
+    def __init__(self, LogType: int, Action: str, Message: str) -> None:
+        self.LogType = LogType
+        self.Action = Action
+        self.Message = Message
+        self.Service = APP_NAME
+        self.Version = str(__version__)
 
+    def to_dict(self):
+        return {
+            attr: getattr(self, attr)
+            for attr in ["LogType", "Action", "Message", "Service", "Version"]
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 class LoggerClass:
     def __init__(self, config: MQConfiguration):

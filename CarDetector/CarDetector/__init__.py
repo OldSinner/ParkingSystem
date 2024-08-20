@@ -1,3 +1,1 @@
-from CarDetector import Detector
-
-__all__ = ["Detector"]
+__version__ = "0.0.2"

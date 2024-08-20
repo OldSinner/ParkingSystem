@@ -1,8 +1,6 @@
 import cv2
-from Configuration.Configuration import *
-from Helpers.const import *
 from datetime import datetime
-
+from ..config import CV2Configuration, Configuration
 MARGIN = 20
 TEXT_SPACE = 30
 ConfigurationManager = Configuration()
@@ -87,5 +85,3 @@ def cv2draw_stats(frame, stats):
         config.stat_color,
         config.stat_thick,
     )
-
-    # cv2.putText(frame,"DETECTED CARS: "+ )
