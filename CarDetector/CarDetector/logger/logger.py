@@ -37,7 +37,7 @@ class LoggerClass:
     def LogDbg(self, act: str, message: str):
         self.__Log(3, act, message)
 
-    def LogErr(self, act: str, message: str):
+    def LogErr(self, act: str, message: str | Exception):
         self.__Log(4, act, message)
 
     def __Log(self, type: int, act: str, message: str | Exception):

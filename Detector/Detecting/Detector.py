@@ -3,15 +3,9 @@ import os
 import threading
 import cv2
 
-from Communication.BrokerSender import BrokerSender
-from Communication.Logger import LoggerClass
-from Communication.Broker import *
 from Detecting.DetectorStats import DetectorStats
 from Detecting.Reader import Reader
 from Detecting.DetectorEnums import *
-from Helpers.cv2short import *
-from Helpers.const import *
-from CarDetector.src.CarDetector.Configuration import *
 
 
 class Detector:
@@ -27,14 +21,6 @@ class Detector:
 
         # Communication
         self.Logger: LoggerClass = Logger
-        self.BrokerSender: BrokerSender = BrokerSender(
-            self, config.MQConfiguration, Logger
-        )
-        self.BrokerReceiver: BrokerReceiver = BrokerReceiver(
-            self, config.MQConfiguration, Logger
-        )
-        self.RunBrokers()
-
         # Camera
         if not self.config.use_photo:
             self.get_camera_cap()
@@ -43,28 +29,6 @@ class Detector:
                 "Detector.get_camera_cap",
                 f"Using a image from {self.config.cam_photo_path}",
             )
-
-    def get_camera_cap(self):
-        self.Logger.LogInfo("Detector.get_camera_cap", 'Catching Video Capture "1"')
-        try:
-            cap = cv2.VideoCapture(1)
-            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
-            self.cap = cap
-        except Exception as ex:
-            self.Logger.LogErr("Detector.get_camera_cap", ex)
-        return self
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.BrokerReceiver.Dispose()
-
-    def RunBrokers(self):
-        self.Logger.LogInfo("Detector.RunBrokers", "Starting BrokerReceiver")
-        threading.Thread(target=self.BrokerReceiver.Consume, daemon=True).start()
 
     def Run(self):
         self.Logger.LogInfo("Detector.Run", "Detector ON")
