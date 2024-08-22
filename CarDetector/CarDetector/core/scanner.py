@@ -13,8 +13,10 @@ class Scanner:
         self.car_model = YOLO(self.config.car_detector_model)
         self.license_plate = YOLO(self.config.license_plate_model)
         self.detected_lp = []
+        self.logger = logger
         
     def scan_for_car(self,frame) -> tuple[bool, list]:
+        self.logger.LogInfo("Scanner.scan_for_car","Scanning frame for car")
         detections = self.car_model(frame, verbose=False)[0]
         detections_ = []
         for detection in detections.boxes.data.tolist():
@@ -24,6 +26,7 @@ class Scanner:
         return (True, detections_) if detections_ else (False, detections_)
     
     def scan_for_plate(self,frame) -> tuple[int,list]:
+        self.logger.LogInfo("Scanner.scan_for_plate","Scanning frame for plate")
         plates = self.license_plate(frame, verbose=False)[0]
         if len(plates) > 1:
             return (0, [])
@@ -33,6 +36,7 @@ class Scanner:
             return (2,[])
         
     def extract_plate(self, frame, x1, y1, x2, y2):
+        
         lp_crop = frame[int(y1) : int(y2), int(x1) : int(x2), :]
         lp_gray_cop = cv2.cvtColor(lp_crop, cv2.COLOR_BGR2GRAY)
         _, lp_gray_threshold = cv2.threshold(
@@ -40,6 +44,8 @@ class Scanner:
         )
         lps = self.read_plate(lp_gray_threshold)
         code, tx = format_license_plate(lps)
+        self.logger.LogInfo("Scanner.extract_plate","extracting")
+        
         return code, tx
     def read_plate(self,frame):
         reader = easyocr.Reader(["en"], gpu=True)

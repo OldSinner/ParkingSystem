@@ -4,6 +4,7 @@ from CarDetector.config.const import APP_NAME
 import pika
 from ..config import  MQConfiguration
 from CarDetector import __version__
+from ..config.configuration import ConfigManager
 class LogMessage:
     def __init__(self, LogType: int, Action: str, Message: str) -> None:
         self.LogType = LogType
@@ -22,12 +23,31 @@ class LogMessage:
         return json.dumps(self.to_dict())
 
 class LoggerClass:
-    def __init__(self, config: MQConfiguration):
-        self.config = config
+    def __init__(self):
         self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(self.config.url)
+            pika.ConnectionParameters(ConfigManager.MQConfiguration.url)
         )
+    def LogMethod(self, func, *args, **kwargs):
+        method_name = f"{func.__module__}.{func.__name__}"
+        try:
+            self.LogInfo(method_name,f"Call:{args}")
+            r = func(*args, **kwargs)
+            self.LogInfo(method_name,f"Resp:{r}")
+            return r
+        except Exception as ex:
+            self.LogErr(method_name,f"Exce:{ex}")
+    
+    def LogDebugMethod(self, func, *args, **kwargs):
+        method_name = f"{func.__module__}.{func.__name__}"
+        try:
+            self.LogDbg(method_name,f"Call:{args}")
+            r = func(*args, **kwargs)
+            self.LogDbg(method_name,f"Resp:{r}")
+            return r
+        except Exception as ex:
+            self.LogErr(method_name,f"Exce:{ex}")
 
+        
     def LogInfo(self, act: str, message: str):
         self.__Log(1, act, message)
 
@@ -44,7 +64,7 @@ class LoggerClass:
         try:
             if(self.connection.is_closed):
                 self.connection = pika.BlockingConnection(
-                    pika.ConnectionParameters(self.config.url)
+                    pika.ConnectionParameters(ConfigManager.MQConfiguration.url)
                     )
             channel = self.connection.channel()
             if isinstance(message, Exception):
@@ -52,7 +72,7 @@ class LoggerClass:
                 message = str(message)
             msg = LogMessage(type, act, message)
             channel.basic_publish(
-                exchange=self.config.logger_exchange,
+                exchange=ConfigManager.MQConfiguration.logger_exchange,
                 routing_key="",
                 body=msg.to_json(),
             )
