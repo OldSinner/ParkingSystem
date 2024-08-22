@@ -10,7 +10,7 @@ class ScannerLog:
     def __init__(self) -> None:
         self.scanner = Scanner()
     def scan_for_car(self,frame) -> tuple[bool, list]:
-        return Logger.LogMethod(self.scanner.scan_for_car,frame) 
+        return Logger.LogDebugMethod(self.scanner.scan_for_car,frame) 
     def scan_for_plate(self,frame) -> tuple[int, list]:
         return Logger.LogMethod(self.scanner.scan_for_plate,frame) 
     def extract_plate(self,frame, x1, y1, x2, y2) -> tuple[int, str]:
@@ -28,7 +28,7 @@ class Scanner:
     # 
    
     def scan_for_car(self,frame) -> tuple[bool, list]:
-        detections = self.car_model(frame, verbose=False)[0]
+        detections = self.car_model(frame, verbose=False, show = True, device='0')[0]
         detections_ = []
         for detection in detections.boxes.data.tolist():
             x1, y1, x2, y2, score, class_id = detection

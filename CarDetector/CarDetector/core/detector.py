@@ -1,7 +1,10 @@
 from ..core.scanner import ScannerLog
 import cv2
+import cv2.mat_wrapper
 from ..config import ConfigManager
 from ..logger import Logger
+from .scanner import ScannerLog
+scanner = ScannerLog()
 class DetectorLog:
     def __init__(self):
         self.service = Detector()
@@ -34,5 +37,5 @@ class Detector:
                 break
 
     def detect(self, frame) -> None:
-        pass
+        scanner.scan_for_car(frame)
        
