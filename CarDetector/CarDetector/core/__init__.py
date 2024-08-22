@@ -1,4 +1,4 @@
 from .wrapper import Wrapper
-from .detector import Detector
+from .detector import DetectorLog
 
-__all__ = ["Wrapper","Detector"]
+__all__ = ["Wrapper","DetectorLog"]

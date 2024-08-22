@@ -1,27 +1,24 @@
 from ..config import ConfigManager
-from ..logger import LoggerClass
 from ultralytics import YOLO
 import easyocr
 from collections import Counter
 import cv2
 from ..formatters import format_license_plate
 scanner_config = ConfigManager.ReaderConfig
-    
-
+from ..logger import Logger
 class ScannerLog:
-    def __init__(self, logger :LoggerClass) -> None:
+    def __init__(self) -> None:
         self.scanner = Scanner()
-        self.logger = logger
     def scan_for_car(self,frame) -> tuple[bool, list]:
-        return self.logger.LogMethod(self.scanner.scan_for_car,frame) 
+        return Logger.LogMethod(self.scanner.scan_for_car,frame) 
     def scan_for_plate(self,frame) -> tuple[int, list]:
-        return self.logger.LogMethod(self.scanner.scan_for_plate,frame) 
+        return Logger.LogMethod(self.scanner.scan_for_plate,frame) 
     def extract_plate(self,frame, x1, y1, x2, y2) -> tuple[int, str]:
-        return self.logger.LogMethod(self.scanner.extract_plate,frame, x1, y1, x2, y2) 
+        return Logger.LogMethod(self.scanner.extract_plate,frame, x1, y1, x2, y2) 
     def read_plate(self,frame) -> list:
-        return self.logger.LogMethod(self.scanner.read_plate,frame) 
+        return Logger.LogMethod(self.scanner.read_plate,frame) 
     def pick_best_lp(self) -> str:
-        return self.logger.LogMethod(self.scanner.pick_best_lp) 
+        return Logger.LogMethod(self.scanner.pick_best_lp) 
 class Scanner:
     def __init__(self) -> None:
         self.config = ConfigManager.ReaderConfig

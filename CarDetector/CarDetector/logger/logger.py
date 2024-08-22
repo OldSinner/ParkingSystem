@@ -9,7 +9,6 @@ from typing import Callable, TypeVar, Any
 
 R = TypeVar('R')
 
-
 class LogMessage:
     def __init__(self, LogType: int, Action: str, Message: str) -> None:
         self.LogType = LogType
@@ -85,3 +84,5 @@ class LoggerClass:
         except TypeError:
 
             print(msg.to_dict())
+
+Logger = LoggerClass()
