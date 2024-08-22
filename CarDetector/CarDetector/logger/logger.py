@@ -42,6 +42,10 @@ class LoggerClass:
 
     def __Log(self, type: int, act: str, message: str | Exception):
         try:
+            if(self.connection.is_closed):
+                self.connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(self.config.url)
+                    )
             channel = self.connection.channel()
             if isinstance(message, Exception):
                 print(traceback.format_exc())

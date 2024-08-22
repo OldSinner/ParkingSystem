@@ -1,7 +1,6 @@
 import configparser
 import ast
 
-
 class Configuration:
     def __init__(self) -> None:
         # Read Configuration
@@ -82,3 +81,6 @@ class MQConfiguration:
         self.gate_action_queue : str = mq_dict.get("gate_action_queue", "")
         self.gate_event_queue : str = mq_dict.get("gate_event_queue", "")
         self.logger_exchange : str = mq_dict.get("logger_exchange", "")
+
+
+ConfigManager = Configuration()

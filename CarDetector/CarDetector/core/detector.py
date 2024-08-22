@@ -1,17 +1,18 @@
+from ..core.scanner import Scanner
 from ..logger import LoggerClass
-from ..config import Configuration, DetectorConfiguration
 import cv2
-
+from ..config import ConfigManager
 class Detector:
-    def __init__(self,logger : LoggerClass, config : Configuration):
-        self.config : DetectorConfiguration = config.DetectorConfig
+    def __init__(self,logger : LoggerClass):
         self.logger = logger;
+        self.scanner = Scanner(logger)
+        
     def get_camera_cap(self):
         self.logger.LogInfo("Detector.get_camera_cap", 'Catching Video Capture "1"')
         try:
             cap = cv2.VideoCapture(1)
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.cam_width)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.cam_height)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, ConfigManager.DetectorConfig.cam_width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, ConfigManager.DetectorConfig.cam_height)
         except Exception as ex:
             self.logger.LogErr("Detector.get_camera_cap", ex)
         return cap
@@ -24,9 +25,15 @@ class Detector:
                 ret, frame = cap.read()        
                 if not ret:
                     break
-                cv2.imshow(f"CAM{str(self.config.cam_number)}", frame)
-                key = cv2.waitKey(120)
-                if key == 27:
+                
+                self.detect()
+                
+                cv2.imshow(f"CAM{str(ConfigManager.DetectorConfig.cam_number)}", frame)
+                if cv2.waitKey(120) == 27:
                     break
         except Exception as ex:
             self.logger.LogErr("Detector.Run", ex)
+
+    def detect(self) -> None:
+        pass
+       
