@@ -1,11 +1,11 @@
-from ..core.scanner import Scanner
+from ..core.scanner import ScannerLog
 from ..logger import LoggerClass
 import cv2
 from ..config import ConfigManager
 class Detector:
     def __init__(self,logger : LoggerClass):
         self.logger = logger;
-        self.scanner = Scanner(logger)
+        self.scanner = ScannerLog(logger)
         
     def get_camera_cap(self):
         self.logger.LogInfo("Detector.get_camera_cap", 'Catching Video Capture "1"')

@@ -5,6 +5,11 @@ import pika
 from ..config import  MQConfiguration
 from CarDetector import __version__
 from ..config.configuration import ConfigManager
+from typing import Callable, TypeVar, Any
+
+R = TypeVar('R')
+
+
 class LogMessage:
     def __init__(self, LogType: int, Action: str, Message: str) -> None:
         self.LogType = LogType
@@ -27,7 +32,7 @@ class LoggerClass:
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(ConfigManager.MQConfiguration.url)
         )
-    def LogMethod(self, func, *args, **kwargs):
+    def LogMethod(self, func: Callable[..., R], *args : Any, **kwargs:Any) -> R:
         method_name = f"{func.__module__}.{func.__name__}"
         try:
             self.LogInfo(method_name,f"Call:{args}")
@@ -36,6 +41,7 @@ class LoggerClass:
             return r
         except Exception as ex:
             self.LogErr(method_name,f"Exce:{ex}")
+            raise ex
     
     def LogDebugMethod(self, func, *args, **kwargs):
         method_name = f"{func.__module__}.{func.__name__}"
