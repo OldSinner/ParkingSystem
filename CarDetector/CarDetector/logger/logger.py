@@ -5,6 +5,7 @@ import pika
 from .loglevel import LogLevel
 from CarDetector import __version__
 from ..config.configuration import ConfigManager
+import time
 from typing import Callable, TypeVar, Any
 R = TypeVar('R')
 MAX_LEN_STR = 200
@@ -25,7 +26,11 @@ class LogMessage:
 
     def to_json(self):
         return json.dumps(self.to_dict())
-
+class LoggerClassMock:
+    def LogMethod(self, func: Callable[..., R], *args : Any, **kwargs:Any) -> R:
+        return func(*args,**kwargs)
+    def LogDebugMethod(self, func: Callable[..., R], *args : Any, **kwargs:Any) -> R:
+        return func(*args,**kwargs)
 class LoggerClass:
     def __init__(self):
         self.connection = pika.BlockingConnection(
@@ -35,9 +40,11 @@ class LoggerClass:
         method_name = f"{func.__module__}.{func.__name__}"
         _args = self.format_len(args)
         try:
+            start = time.time()
             self.LogInfo(method_name,f"Call:{_args}")
             r = func(*args, **kwargs)
-            self.LogInfo(method_name,f"Resp:{self.format_len(r)}")
+            end = time.time()
+            self.LogInfo(method_name,f"Time:{end-start} Resp:{self.format_len(r)}")
             return r
         except Exception as ex:
             self.LogErr(method_name,f"Exce:{ex}")
@@ -108,3 +115,4 @@ class LoggerClass:
             print(msg.to_dict())
 
 Logger = LoggerClass()
+LoggerMock = LoggerClassMock()

@@ -1,3 +1,3 @@
-from .logger import Logger
+from .logger import Logger, LoggerMock
 
-__all__ = ["Logger"]
+__all__ = ["Logger","LoggerMock"]
